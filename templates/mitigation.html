@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Bias Mitigation - Ethical AI System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="fa-solid fa-wand-magic-sparkles text-success me-2"></i> Algorithmic Bias Mitigation</h2>
+            <p class="text-muted mb-0">Original Model: <strong>{{ run.model_name }}</strong> | Dataset: <strong>{{ dataset.filename }}</strong></p>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary"><i class="fa-solid fa-gauge me-1"></i> Dashboard</a>
+    </div>
+
+    <!-- Mitigation Selector Form -->
+    <div class="card card-custom p-4 mb-4">
+        <h5 class="fw-bold mb-3">Select Fairness Mitigation Algorithm</h5>
+        <form action="{{ url_for('run_mitigation', model_run_id=run.id) }}" method="POST" class="row align-items-end g-3">
+            <div class="col-md-8">
+                <label class="form-label fw-bold">Mitigation Strategy</label>
+                <select name="mitigation_method" class="form-select form-select-lg">
+                    <option value="Threshold_Optimization" selected>Post-Processing: Subgroup Threshold Calibration (Recommended - Zero Data Loss)</option>
+                    <option value="Reweighing">Pre-Processing: Kamiran & Calders Sample Reweighing</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">
+                    <i class="fa-solid fa-sliders me-2"></i> Apply Mitigation Algorithm
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if mitigated_run %}
+    <!-- Before vs After Comparative Analysis Card -->
+    <div class="card card-custom p-4 mb-4">
+        <h4 class="fw-bold mb-4 text-center"><i class="fa-solid fa-code-compare me-2 text-primary"></i> Fairness & Accuracy Comparison (Before vs. After)</h4>
+        
+        <div class="row text-center g-4 mb-4">
+            <!-- Disparate Impact Before vs After -->
+            <div class="col-md-6">
+                <div class="p-3 rounded border bg-light">
+                    <h6 class="text-muted fw-bold">DISPARATE IMPACT (FAIRNESS)</h6>
+                    <div class="d-flex justify-content-center align-items-center gap-3 my-2">
+                        <div class="text-danger fs-3 fw-bold">{{ run.disparate_impact }}</div>
+                        <i class="fa-solid fa-arrow-right fa-2x text-muted"></i>
+                        <div class="text-success fs-1 fw-bold">{{ mitigated_run.disparate_impact }}</div>
+                    </div>
+                    <span class="badge badge-fair fs-6"><i class="fa-solid fa-circle-check me-1"></i> Fairness Improved by +{{ ((mitigated_run.disparate_impact - run.disparate_impact) * 100)|round(1) }}%</span>
+                </div>
+            </div>
+
+            <!-- Accuracy Before vs After -->
+            <div class="col-md-6">
+                <div class="p-3 rounded border bg-light">
+                    <h6 class="text-muted fw-bold">CLASSIFICATION ACCURACY</h6>
+                    <div class="d-flex justify-content-center align-items-center gap-3 my-2">
+                        <div class="text-primary fs-3 fw-bold">{{ (run.accuracy * 100)|round(1) }}%</div>
+                        <i class="fa-solid fa-arrow-right fa-2x text-muted"></i>
+                        <div class="text-primary fs-1 fw-bold">{{ (mitigated_run.accuracy * 100)|round(1) }}%</div>
+                    </div>
+                    <span class="badge bg-secondary fs-6">Minimal Accuracy Impact</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart.js Comparative Bar Chart -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <canvas id="comparisonChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if mitigated_run %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        renderMitigationComparisonChart(
+            'comparisonChart',
+            {{ run.disparate_impact }},
+            {{ mitigated_run.disparate_impact }},
+            {{ run.accuracy }},
+            {{ mitigated_run.accuracy }}
+        );
+    });
+</script>
+{% endif %}
+{% endblock %}

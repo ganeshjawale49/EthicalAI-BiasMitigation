@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Configure Preprocessing - Ethical AI System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Dataset Preprocessing & Sensitive Tagging</h2>
+            <p class="text-muted mb-0">Configure target label, protected attribute, and privileged baseline group for dataset: <strong>{{ dataset.filename }}</strong></p>
+        </div>
+        <a href="{{ url_for('upload_page') }}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-1"></i> Back to Datasets</a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Configuration Form -->
+        <div class="col-md-5">
+            <div class="card card-custom p-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-sliders text-primary me-2"></i> Fairness Audit Configuration</h5>
+                <form action="{{ url_for('save_preprocess_config', dataset_id=dataset.id) }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">1. Target Classification Column (Outcome)</label>
+                        <select name="target_column" class="form-select" required>
+                            {% for col in info.columns %}
+                                <option value="{{ col }}" {% if col == dataset.target_column %}selected{% endif %}>{{ col }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">e.g. Credit_Approved, Income_Greater_50k</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">2. Protected / Sensitive Attribute Column</label>
+                        <select name="sensitive_column" id="sensitive_column" class="form-select" required onchange="updateGroupOptions()">
+                            {% for col in info.columns %}
+                                <option value="{{ col }}" {% if col == dataset.sensitive_column %}selected{% endif %}>{{ col }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">e.g. Gender, Race, Age</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">3. Privileged Baseline Group (Baseline = 1)</label>
+                        <input type="text" name="privileged_group" id="privileged_group" class="form-control" value="{{ dataset.privileged_group or 'Male' }}" required placeholder="e.g. Male or White">
+                        <div class="form-text">The historically favored group in training data.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">4. Unprivileged Group (Target = 0)</label>
+                        <input type="text" name="unprivileged_group" id="unprivileged_group" class="form-control" value="{{ dataset.unprivileged_group or 'Female' }}" required placeholder="e.g. Female or Non-White">
+                        <div class="form-text">The group monitored for adverse disparate impact.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2"><i class="fa-solid fa-floppy-disk me-2"></i> Save & Proceed to Model Training</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Schema Inspector & Data Preview -->
+        <div class="col-md-7">
+            <div class="card card-custom p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-magnifying-glass me-2 text-info"></i> Column Data Profiler</h5>
+                <div class="table-responsive" style="max-height: 250px;">
+                    <table class="table table-sm table-bordered align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Column</th>
+                                <th>Type</th>
+                                <th>Missing</th>
+                                <th>Unique Values</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for col, stats in info.column_stats.items() %}
+                            <tr>
+                                <td class="fw-bold">{{ col }}</td>
+                                <td><span class="badge bg-secondary">{{ stats.dtype }}</span></td>
+                                <td>{{ stats.missing }}</td>
+                                <td class="small text-muted">{{ stats.sample_values | join(', ') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Preview Top 5 Rows -->
+            <div class="card card-custom p-4">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-table me-2 text-success"></i> Data Preview (First 5 Rows)</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                {% for col in info.columns %}
+                                    <th>{{ col }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in info.preview[:5] %}
+                            <tr>
+                                {% for col in info.columns %}
+                                    <td>{{ row[col] }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

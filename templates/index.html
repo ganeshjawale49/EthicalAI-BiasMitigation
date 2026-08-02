@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Home - Ethical AI Bias Mitigation{% endblock %}
+
+{% block content %}
+<div class="hero-banner text-center">
+    <div class="container">
+        <h1 class="hero-title mb-3">Mitigation of Bias & Improving Fairness in Machine Learning using LLMs</h1>
+        <p class="lead text-light mb-4 max-w-2xl mx-auto" style="max-width: 800px;">
+            A complete final-year engineering platform designed to detect algorithmic discrimination against protected attributes 
+            (Gender, Race, Age), generate plain-English explanations via LLMs, and restore ethical fairness metrics without degrading model performance.
+        </p>
+        {% if session.user_id %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-lg btn-primary px-4 me-2"><i class="fa-solid fa-gauge me-2"></i> Go to Dashboard</a>
+            <a href="{{ url_for('upload_page') }}" class="btn btn-lg btn-outline-light px-4"><i class="fa-solid fa-upload me-2"></i> Upload Dataset</a>
+        {% else %}
+            <a href="{{ url_for('login_page') }}" class="btn btn-lg btn-primary px-4 me-2"><i class="fa-solid fa-right-to-bracket me-2"></i> Get Started</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <div class="card card-custom h-100 p-4">
+                <div class="mb-3 text-primary"><i class="fa-solid fa-magnifying-glass-chart fa-3x"></i></div>
+                <h5 class="fw-bold">1. Bias Detection</h5>
+                <p class="text-muted">Calculates standardized Ethical AI metrics including Disparate Impact, Demographic Parity, and Equalized Odds.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-custom h-100 p-4">
+                <div class="mb-3 text-success"><i class="fa-solid fa-brain fa-3x"></i></div>
+                <h5 class="fw-bold">2. LLM Explainability</h5>
+                <p class="text-muted">Uses Google Gemini LLM to translate mathematical confusion matrices into simple English governance insights.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-custom h-100 p-4">
+                <div class="mb-3 text-warning"><i class="fa-solid fa-sliders fa-3x"></i></div>
+                <h5 class="fw-bold">3. Algorithmic Mitigation</h5>
+                <p class="text-muted">Applies Reweighing pre-processing & Threshold Optimization post-processing to eliminate disparity.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

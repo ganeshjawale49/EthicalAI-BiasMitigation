@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}LLM Bias Audit - Ethical AI System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="fa-solid fa-brain text-info me-2"></i> LLM Ethical Bias Explanation</h2>
+            <p class="text-muted mb-0">Powered by <strong>{{ audit.source }}</strong> | Auditing: <strong>{{ run.model_name }}</strong></p>
+        </div>
+        <div>
+            <a href="{{ url_for('bias_detection_page', model_run_id=run.id) }}" class="btn btn-outline-secondary me-2"><i class="fa-solid fa-arrow-left me-1"></i> Back to Metrics</a>
+            <a href="{{ url_for('mitigation_page', model_run_id=run.id) }}" class="btn btn-success"><i class="fa-solid fa-wand-magic-sparkles me-1"></i> Proceed to Bias Mitigation</a>
+        </div>
+    </div>
+
+    <!-- Executive Summary Box -->
+    <div class="llm-box mb-4">
+        <h4 class="fw-bold text-dark mb-2"><i class="fa-solid fa-quote-left text-info me-2"></i> Executive Audit Summary</h4>
+        <p class="fs-5 text-dark mb-0">{{ audit.summary_text }}</p>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Detailed Plain English Breakdown -->
+        <div class="col-md-7">
+            <div class="card card-custom p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-list-check text-primary me-2"></i> Plain-English Disparity Breakdown</h5>
+                <div class="lh-lg">
+                    {{ audit.explanation_text | replace('\n', '<br>') | safe }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Root Cause Analysis -->
+        <div class="col-md-5">
+            <div class="card card-custom p-4 h-100 bg-light">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-microscope text-danger me-2"></i> Root Cause Diagnostics</h5>
+                <p class="text-muted mb-0">{{ audit.root_cause }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Box -->
+    <div class="card card-custom p-4 border-start border-4 border-success">
+        <h5 class="fw-bold mb-3 text-success"><i class="fa-solid fa-lightbulb me-2"></i> Actionable Mitigation Recommendations</h5>
+        <div class="row g-3">
+            {% for rec in recommendations %}
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border">
+                        <i class="fa-solid fa-check-circle text-success me-2"></i> {{ rec | safe }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

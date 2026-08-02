@@ -1,0 +1,1001 @@
+Gender,Age,Education,Credit_Score,Annual_Income,Loan_Amount,Years_Employed,Credit_Approved
+Male,31,Masters,660,70541,29941,3,0
+Female,35,High School,651,59057,18945,15,1
+Female,43,Bachelors,566,91983,15762,23,1
+Female,38,Bachelors,817,44583,35133,28,1
+Male,27,High School,731,47765,45150,21,1
+Male,50,Bachelors,573,84287,32052,29,1
+Male,40,High School,578,48906,46750,0,0
+Female,36,High School,720,110103,24953,16,1
+Female,42,High School,777,104675,45475,24,1
+Female,56,Doctorate,737,71525,22130,9,1
+Male,35,Bachelors,779,63230,36086,21,1
+Female,25,Doctorate,668,44520,9633,15,0
+Female,27,Bachelors,705,110238,22304,15,1
+Male,44,Bachelors,821,76934,47037,25,1
+Male,37,Bachelors,724,50566,37284,7,0
+Male,44,Bachelors,653,98193,12008,28,1
+Male,31,High School,641,55134,32405,6,0
+Male,34,Bachelors,735,35345,41386,27,1
+Male,45,High School,832,66185,30373,5,1
+Male,60,Bachelors,730,117949,25827,15,1
+Female,64,Bachelors,719,95744,38040,19,1
+Male,45,High School,736,58455,18007,15,1
+Male,51,High School,724,53018,23157,6,0
+Male,29,Masters,771,79219,37157,8,1
+Male,35,Bachelors,782,70991,40315,13,1
+Female,26,High School,711,98616,40932,10,1
+Male,36,Doctorate,683,112438,26164,25,1
+Male,42,High School,773,34486,19414,25,1
+Female,45,Bachelors,702,63862,19327,13,1
+Male,40,Doctorate,582,83870,5946,6,1
+Female,41,High School,604,111694,19693,0,0
+Male,26,High School,556,68856,32241,25,1
+Male,33,High School,793,111055,35254,24,1
+Female,34,Bachelors,675,56379,20540,12,0
+Female,26,High School,561,89729,11719,19,1
+Female,28,Bachelors,565,53378,46203,2,0
+Male,27,High School,757,79353,30081,19,1
+Male,42,Bachelors,592,74996,16350,3,0
+Female,48,Doctorate,684,39031,41358,28,1
+Male,37,Masters,777,105072,37021,25,1
+Male,50,Bachelors,660,90982,47832,10,1
+Male,49,Bachelors,709,61683,33369,1,0
+Male,58,Bachelors,813,42618,36728,13,1
+Female,54,Bachelors,774,31587,22576,11,0
+Male,37,Bachelors,766,87790,34001,29,1
+Female,61,High School,594,56480,22848,16,0
+Male,58,Masters,763,45527,5390,11,1
+Male,36,Bachelors,608,48569,26999,25,1
+Male,33,High School,681,36151,16569,11,0
+Male,50,Bachelors,653,96094,18029,0,1
+Female,43,Bachelors,744,84174,27490,12,1
+Female,54,Masters,706,69739,40328,13,1
+Female,63,Masters,647,57954,10867,23,1
+Female,64,Masters,775,60303,20284,29,1
+Female,53,High School,754,59700,38979,1,0
+Female,22,Bachelors,628,118036,14121,11,1
+Male,56,Bachelors,673,92568,6539,25,1
+Male,62,High School,767,91788,30488,20,1
+Male,59,High School,553,96045,22027,27,1
+Male,45,Masters,639,62842,13693,15,1
+Male,42,High School,653,38900,13921,3,0
+Male,63,Bachelors,668,105059,15310,7,1
+Female,58,High School,682,26881,35908,1,0
+Male,34,High School,645,58037,9386,9,1
+Male,23,High School,692,26630,37263,8,0
+Male,48,Doctorate,837,45789,33412,22,1
+Male,41,Masters,577,113059,22303,14,1
+Female,44,Doctorate,827,108494,17242,12,1
+Male,32,Bachelors,782,71151,13947,22,1
+Female,37,High School,566,73920,10930,16,1
+Female,52,Bachelors,608,92231,43170,29,1
+Male,35,Bachelors,639,105357,5507,15,1
+Male,64,Masters,748,28262,6436,27,1
+Female,61,High School,575,91981,32151,1,0
+Female,63,Bachelors,574,106972,16618,19,1
+Female,21,High School,816,100485,13750,19,1
+Female,54,Bachelors,730,79722,21122,26,1
+Male,61,Masters,617,114499,12354,13,1
+Male,53,Bachelors,598,75818,49062,2,0
+Male,49,Bachelors,724,54932,35979,22,1
+Female,32,Bachelors,601,31901,25900,11,0
+Female,32,Bachelors,651,33597,18840,7,0
+Male,37,Masters,765,88909,42167,1,1
+Male,51,Masters,737,97391,10037,3,1
+Male,51,Doctorate,606,109214,33633,13,1
+Male,54,Masters,596,33263,29495,15,0
+Female,58,Bachelors,708,88293,20848,18,1
+Female,48,Bachelors,723,50805,41483,1,0
+Female,48,Bachelors,791,116679,12837,11,1
+Male,63,High School,831,36874,39069,28,1
+Male,35,Masters,790,118065,12370,13,1
+Female,63,High School,554,111402,11411,5,0
+Female,29,Doctorate,633,39079,44133,12,0
+Female,49,Bachelors,797,74850,35499,3,0
+Female,44,Bachelors,603,97779,35225,21,1
+Male,58,Bachelors,710,34018,5692,17,1
+Male,39,Masters,775,74500,33926,11,1
+Male,24,Bachelors,564,37100,39246,19,1
+Male,20,Bachelors,773,82021,44164,26,1
+Male,49,High School,610,44800,13448,21,1
+Male,22,Bachelors,671,88400,48390,29,1
+Female,64,High School,826,117446,15073,20,1
+Male,33,Masters,595,54437,40414,18,1
+Male,49,Bachelors,843,101537,10209,7,1
+Female,23,Bachelors,611,71675,11533,6,0
+Male,37,High School,635,44942,26061,15,1
+Male,56,High School,759,45862,12211,18,1
+Female,44,Masters,627,36669,14927,5,0
+Male,20,High School,751,78772,16927,19,1
+Male,34,High School,772,40916,29594,26,1
+Male,28,High School,771,35878,14316,20,1
+Male,34,Doctorate,552,27985,17177,10,0
+Female,43,Masters,555,98648,15846,4,0
+Female,23,Bachelors,642,66235,12933,15,1
+Female,31,High School,557,43931,43244,6,0
+Female,56,Bachelors,784,117876,45696,26,1
+Female,56,Masters,657,25336,7080,4,0
+Male,62,Bachelors,710,67933,11089,10,1
+Female,25,High School,758,109899,31123,14,1
+Male,58,High School,789,70536,12797,2,1
+Female,43,High School,599,94504,13346,25,1
+Female,30,Bachelors,560,76148,24878,4,0
+Male,32,Masters,705,41279,38672,22,1
+Male,53,High School,619,93665,22653,20,1
+Male,44,High School,718,96386,47742,4,1
+Male,26,High School,821,111124,31140,8,1
+Female,23,Doctorate,617,102485,6184,14,1
+Female,27,High School,801,99055,39493,2,1
+Male,39,Masters,597,116911,49148,28,1
+Male,48,Bachelors,733,102273,29846,5,1
+Male,64,Bachelors,736,91670,27195,16,1
+Male,29,High School,639,101474,10606,25,1
+Male,62,High School,688,79028,8956,20,1
+Male,53,Bachelors,638,115022,21555,7,1
+Female,45,Masters,823,116632,29849,20,1
+Male,60,Bachelors,568,96128,23690,24,1
+Male,22,Bachelors,703,43108,31347,10,1
+Female,25,High School,809,77495,38189,5,1
+Male,24,Doctorate,657,107806,43308,7,1
+Female,24,Masters,834,118185,30785,9,1
+Female,42,High School,608,101533,37698,23,1
+Male,28,Doctorate,674,81830,20966,28,1
+Male,54,Bachelors,822,99640,36097,2,1
+Male,39,Bachelors,656,77509,20882,22,1
+Male,61,Masters,848,91406,9675,13,1
+Male,54,Masters,794,119220,46850,22,1
+Female,37,Bachelors,796,64519,18009,13,1
+Male,36,High School,557,74649,32843,9,1
+Male,43,Bachelors,690,59524,34793,11,1
+Male,22,Doctorate,557,58885,44516,5,0
+Female,51,High School,643,69369,43871,11,0
+Male,54,Bachelors,588,55676,22857,22,1
+Male,57,Bachelors,630,89093,24627,13,1
+Male,32,Bachelors,736,72764,23565,1,1
+Female,44,Bachelors,633,75799,31025,8,0
+Male,28,Doctorate,637,104414,32832,9,1
+Female,23,High School,791,118095,49116,25,1
+Female,33,High School,642,97307,14782,16,1
+Male,56,High School,635,107062,43650,16,1
+Female,53,Masters,593,56923,27366,2,0
+Male,30,Bachelors,686,103388,33557,29,1
+Female,60,High School,623,72574,10798,18,1
+Female,22,Masters,585,68391,14627,0,0
+Male,47,Masters,650,78664,46183,11,1
+Male,48,Masters,705,92384,17466,6,1
+Female,28,Doctorate,804,56027,47614,3,0
+Male,22,High School,720,60464,17720,9,1
+Male,44,Masters,765,59485,46913,12,1
+Male,53,Bachelors,719,44456,42292,1,0
+Female,31,Masters,801,99795,11559,9,1
+Female,61,Masters,604,60554,45388,20,1
+Male,28,Masters,640,71922,24158,21,1
+Male,34,Bachelors,827,38409,35916,24,1
+Male,59,High School,650,94327,27057,3,1
+Female,44,Bachelors,704,116400,40892,17,1
+Male,24,Doctorate,690,61639,46439,4,0
+Female,30,Doctorate,722,88627,16706,18,1
+Male,53,High School,559,108424,17070,1,1
+Female,43,High School,777,44692,45902,11,0
+Male,34,High School,814,114037,5924,16,1
+Male,57,Masters,797,103840,31478,9,1
+Male,27,Masters,796,79200,10506,1,1
+Female,24,High School,704,118063,40163,5,1
+Female,45,Bachelors,583,82415,29604,7,0
+Male,37,Masters,678,43074,20310,28,1
+Female,25,Masters,709,40549,13226,18,1
+Female,56,Bachelors,638,54963,16781,10,0
+Female,32,Bachelors,642,116456,10515,24,1
+Male,47,Bachelors,790,77265,41133,11,1
+Male,24,High School,666,41061,21972,8,0
+Male,32,Bachelors,643,83226,37092,1,0
+Female,36,Bachelors,712,53810,16410,7,0
+Female,59,Masters,648,85006,24522,25,1
+Female,64,Bachelors,662,47800,14095,10,0
+Male,51,Masters,640,100476,28047,27,1
+Male,48,High School,755,94460,25470,20,1
+Female,22,Bachelors,566,82767,48129,3,0
+Female,59,High School,823,53054,13531,9,1
+Female,53,High School,722,100319,42038,20,1
+Female,59,Masters,665,70397,27403,19,1
+Female,46,Doctorate,730,38233,47674,15,0
+Male,32,High School,640,115020,34122,7,1
+Male,64,Bachelors,631,50068,21940,3,0
+Female,52,Masters,663,90727,34831,28,1
+Female,25,High School,806,115610,16279,9,1
+Male,43,Bachelors,607,95453,43220,11,1
+Male,38,Masters,703,50832,11477,28,1
+Female,35,Bachelors,665,111242,22400,13,1
+Male,59,High School,815,38682,11470,15,1
+Male,47,Bachelors,752,117298,7062,21,1
+Male,52,Masters,590,48383,46798,17,1
+Female,60,Bachelors,654,83160,24880,20,1
+Female,32,High School,742,118332,39581,21,1
+Male,62,Masters,827,48666,49439,20,1
+Female,64,High School,786,83817,19308,11,1
+Male,44,Masters,770,116198,31027,17,1
+Male,61,High School,617,59642,35720,29,1
+Female,55,Doctorate,746,66830,40081,6,0
+Female,46,Bachelors,805,35234,14706,19,1
+Female,57,Bachelors,688,82616,14837,23,1
+Female,26,High School,698,34221,43599,22,1
+Female,24,Bachelors,648,36410,41824,6,0
+Male,62,Masters,625,105055,38073,8,1
+Male,64,Doctorate,831,86413,37088,0,1
+Male,50,Bachelors,658,26051,33112,25,1
+Male,42,Bachelors,737,100301,31299,5,1
+Female,61,Masters,748,101918,39457,5,1
+Male,29,Masters,703,103116,35063,21,1
+Female,51,Bachelors,589,81563,8917,28,1
+Female,62,Bachelors,682,69757,7936,11,1
+Female,49,Bachelors,681,102475,41630,21,1
+Male,58,Bachelors,828,76257,19506,11,1
+Female,50,High School,633,25307,33805,9,0
+Male,37,Bachelors,791,81889,19318,22,1
+Male,55,Bachelors,665,93895,31026,29,1
+Female,21,Masters,658,60944,32672,25,1
+Male,33,High School,770,63134,43417,5,1
+Male,32,Bachelors,590,52323,32281,16,1
+Female,48,Bachelors,696,96762,33091,18,1
+Male,31,Bachelors,661,112225,43328,17,1
+Female,58,High School,652,50954,23610,5,0
+Female,21,Bachelors,595,80021,6079,23,1
+Female,51,Bachelors,820,114959,34850,18,1
+Male,32,Bachelors,744,104866,25590,9,1
+Male,46,Bachelors,829,95427,35951,23,1
+Female,60,Bachelors,832,29992,20327,7,0
+Male,36,Masters,589,26961,17755,20,1
+Female,59,High School,738,37497,12235,23,1
+Female,50,Masters,713,57551,22197,5,0
+Female,53,Bachelors,573,101384,26473,20,1
+Male,43,High School,573,80755,7031,24,1
+Male,64,High School,553,38255,46282,29,1
+Female,54,Bachelors,839,29567,46863,6,0
+Male,25,Masters,730,73847,19287,23,1
+Male,38,Masters,797,73003,43679,0,1
+Female,49,Masters,665,45389,49463,26,1
+Female,26,Bachelors,828,69523,37230,17,1
+Female,29,Bachelors,618,86576,24037,23,1
+Female,60,High School,803,68919,32052,27,1
+Male,51,Bachelors,730,107103,8340,24,1
+Female,53,Bachelors,718,28358,45644,19,1
+Female,47,High School,798,113535,6141,11,1
+Male,34,High School,737,101524,30425,15,1
+Male,49,Bachelors,603,30698,24281,9,0
+Female,56,Masters,687,91809,47049,26,1
+Female,48,Doctorate,717,118079,25425,9,1
+Female,41,Doctorate,652,80805,39806,13,1
+Female,23,Bachelors,634,56349,37113,24,1
+Male,39,Bachelors,761,101777,9270,19,1
+Male,51,Bachelors,552,75248,47814,9,1
+Female,55,Masters,728,100033,9683,9,1
+Female,23,High School,587,69041,44884,25,1
+Female,46,Bachelors,788,56954,34809,24,1
+Female,36,Masters,718,33002,39552,10,0
+Male,31,Bachelors,579,94783,8786,22,1
+Male,41,Bachelors,739,112234,26650,1,1
+Female,36,Bachelors,574,44738,33706,24,1
+Female,29,High School,661,35703,14190,19,0
+Female,20,Bachelors,755,74422,43196,7,1
+Female,41,Bachelors,734,108106,44449,29,1
+Female,45,High School,596,86899,44661,22,1
+Male,37,High School,777,37392,34709,28,1
+Male,33,Masters,588,69724,19892,6,0
+Male,48,High School,565,57299,14643,7,0
+Female,31,Bachelors,571,40641,14943,0,0
+Male,55,High School,762,104534,48240,20,1
+Male,54,Doctorate,698,31305,26042,1,0
+Male,31,High School,790,43782,48894,17,1
+Male,26,Bachelors,821,103257,11869,14,1
+Female,48,Masters,608,102963,45437,0,0
+Male,30,Masters,836,45566,49306,4,1
+Male,52,High School,751,92766,47833,1,1
+Female,25,Masters,581,31511,25918,19,0
+Male,34,Bachelors,711,51177,33379,2,0
+Male,51,Bachelors,804,29765,47939,18,1
+Male,30,High School,803,45354,30274,17,1
+Female,42,High School,558,48929,22696,28,1
+Male,45,Masters,688,53820,7962,21,1
+Female,53,Bachelors,559,54523,18851,17,0
+Male,53,Bachelors,763,96088,10296,13,1
+Male,48,Masters,822,91163,19745,29,1
+Male,23,Masters,597,102525,10730,23,1
+Male,36,High School,660,38780,18921,7,0
+Female,54,Bachelors,702,31589,37894,28,1
+Female,32,High School,672,59812,10602,29,1
+Female,60,Masters,651,118664,22575,11,1
+Male,58,Bachelors,790,70939,24023,20,1
+Male,34,Doctorate,740,76493,20997,9,1
+Female,48,High School,766,118326,22750,22,1
+Male,48,High School,600,65953,46979,19,1
+Male,30,High School,841,90785,27837,16,1
+Male,51,High School,630,44309,19997,10,0
+Male,21,High School,637,79195,44439,1,0
+Female,33,Doctorate,743,50901,28067,25,1
+Female,39,High School,653,48576,25923,25,1
+Female,41,High School,820,56508,13876,3,0
+Male,30,Masters,645,99711,7887,0,1
+Male,46,Bachelors,747,50464,47422,14,1
+Male,22,Masters,550,85281,41854,12,1
+Male,36,High School,716,41260,41948,7,0
+Male,63,Bachelors,675,60440,7841,24,1
+Female,47,High School,630,81683,33756,3,0
+Female,48,High School,800,66430,11040,9,1
+Male,40,Doctorate,718,26987,15304,18,1
+Female,35,High School,622,50105,35341,17,0
+Female,56,Bachelors,690,103484,9758,4,1
+Female,39,Bachelors,619,38026,22010,29,1
+Female,25,Bachelors,811,93309,36658,18,1
+Male,38,Masters,794,70927,42782,25,1
+Male,24,High School,552,100414,6375,22,1
+Male,22,Bachelors,612,82535,38949,26,1
+Female,20,Doctorate,598,67946,27092,21,1
+Male,57,Bachelors,625,81561,5490,15,1
+Male,34,Doctorate,724,35377,8729,0,0
+Male,53,High School,658,78592,10974,11,1
+Male,54,Bachelors,732,32347,24680,23,1
+Female,44,High School,741,58776,23324,1,0
+Female,43,Masters,614,28783,36334,20,0
+Male,31,Doctorate,820,80798,26398,24,1
+Male,37,High School,649,29298,39650,7,0
+Male,34,Bachelors,581,95204,26292,17,1
+Male,63,High School,677,111207,40755,24,1
+Male,35,Bachelors,592,80161,43353,15,1
+Male,46,Bachelors,627,85652,8159,4,1
+Male,27,Doctorate,838,59484,37626,25,1
+Female,44,Bachelors,819,45922,34351,29,1
+Female,36,Bachelors,711,59028,42298,21,1
+Male,48,High School,738,45316,22065,12,1
+Male,27,High School,796,101996,26638,18,1
+Female,34,High School,765,41968,6073,28,1
+Male,46,High School,717,55266,23771,2,0
+Female,26,Masters,742,49000,40461,25,1
+Female,22,Bachelors,832,39011,47330,7,0
+Male,48,Bachelors,562,27866,34320,26,1
+Male,63,High School,789,30898,9340,25,1
+Female,43,Masters,696,43395,39924,25,1
+Male,22,Masters,753,64019,21184,11,1
+Female,39,High School,629,29006,45734,1,0
+Female,34,Masters,592,59393,7580,10,0
+Female,44,Bachelors,638,35956,45025,11,0
+Male,49,High School,697,75042,33967,27,1
+Female,33,Bachelors,644,31078,7159,17,0
+Male,26,Bachelors,700,54631,18900,12,1
+Male,36,High School,551,87901,16440,4,0
+Female,63,Doctorate,571,94497,19678,21,1
+Male,39,Masters,556,119813,17021,11,1
+Female,55,Bachelors,755,66574,11772,1,0
+Female,28,Bachelors,663,56417,6627,4,0
+Male,57,Bachelors,821,113020,49432,6,1
+Male,41,Bachelors,632,108639,13219,25,1
+Male,21,Bachelors,728,90006,28464,25,1
+Male,43,High School,759,119881,35232,23,1
+Male,27,Bachelors,673,64454,47481,11,1
+Female,30,Masters,662,26587,13488,15,0
+Male,32,Bachelors,561,79710,39949,22,1
+Male,36,High School,675,111567,49362,7,1
+Female,27,Masters,602,116748,44932,29,1
+Male,40,High School,832,100886,23981,27,1
+Female,37,High School,689,43816,5901,8,0
+Male,49,High School,646,110824,27444,14,1
+Male,37,Bachelors,554,54432,47058,4,0
+Female,50,Masters,606,73617,23061,12,0
+Female,57,Bachelors,618,97373,7881,4,0
+Female,51,High School,667,59217,34863,10,0
+Female,30,Masters,608,45884,10622,9,0
+Female,64,Masters,582,30454,6378,19,0
+Male,44,Masters,599,99960,22632,12,1
+Male,52,High School,568,68618,33311,8,0
+Female,57,Bachelors,763,108948,10650,20,1
+Female,60,Doctorate,746,87671,47224,13,1
+Female,27,Masters,596,72111,12036,17,1
+Male,30,High School,716,64613,44255,14,1
+Male,41,High School,838,110678,27499,9,1
+Female,43,Bachelors,690,84993,42016,23,1
+Male,60,Doctorate,633,33848,9603,6,0
+Female,36,Bachelors,731,103672,32773,7,1
+Female,31,Bachelors,628,91125,24937,27,1
+Male,51,High School,764,111444,17632,2,1
+Female,34,Bachelors,563,86602,35607,14,1
+Female,35,Masters,764,97045,31337,15,1
+Male,41,Bachelors,677,67222,5220,3,0
+Female,47,Masters,797,74223,9818,20,1
+Male,39,Doctorate,578,90333,12349,5,1
+Female,52,High School,829,77732,10618,0,0
+Male,29,Bachelors,751,74420,32464,3,1
+Female,59,High School,606,100504,47624,10,1
+Male,51,Masters,767,27462,42344,11,1
+Male,52,Bachelors,611,34460,23255,25,1
+Female,21,Bachelors,706,34275,29299,28,1
+Male,52,Masters,751,119213,6462,4,1
+Male,52,Bachelors,566,38269,20905,22,1
+Female,60,Doctorate,555,90942,29920,28,1
+Female,32,Bachelors,607,97920,21252,20,1
+Female,49,High School,718,47553,46004,15,1
+Female,52,Bachelors,631,49366,45581,12,0
+Male,32,Masters,768,69036,39836,12,1
+Male,45,Bachelors,726,42369,10753,16,1
+Male,41,Masters,753,36795,45005,26,1
+Female,58,Doctorate,620,95021,19175,6,0
+Female,21,High School,815,93154,11191,7,1
+Female,57,Doctorate,647,55143,22898,12,0
+Female,58,High School,840,54425,23982,22,1
+Male,45,High School,757,113209,19622,26,1
+Male,34,High School,551,100139,6001,15,1
+Male,53,Masters,673,30368,48000,29,1
+Male,61,Bachelors,829,29621,28283,28,1
+Male,63,High School,623,83829,26435,3,0
+Female,59,Bachelors,715,85294,32223,7,1
+Male,30,Bachelors,571,39719,42244,15,0
+Male,22,High School,703,54227,35024,20,1
+Male,25,Masters,844,32566,35734,9,1
+Female,28,Masters,768,37306,5515,24,1
+Female,25,Bachelors,706,78822,6191,11,1
+Male,28,Doctorate,779,49042,37264,11,1
+Male,58,Bachelors,569,40086,48628,25,1
+Female,50,Doctorate,590,42387,11297,4,0
+Male,51,Bachelors,697,52042,32856,15,1
+Female,60,Bachelors,657,114424,13334,0,1
+Female,31,High School,633,76618,29162,27,1
+Male,27,Masters,839,117050,11008,8,1
+Male,27,Bachelors,683,43323,12987,11,1
+Female,47,High School,756,43019,35966,4,0
+Male,39,High School,832,100426,8332,21,1
+Male,26,Bachelors,815,65863,5787,19,1
+Female,30,Bachelors,622,35283,43990,21,0
+Female,39,Masters,597,43279,14873,27,1
+Female,35,Masters,782,71999,22006,23,1
+Female,23,High School,649,87780,25225,2,0
+Male,25,Masters,608,47908,41444,4,0
+Male,41,High School,807,86584,40340,1,1
+Female,45,Masters,614,75225,44683,13,1
+Female,22,Masters,632,62952,10033,1,0
+Male,60,Bachelors,703,62663,12788,12,1
+Female,61,Masters,815,86381,20689,6,1
+Male,33,Bachelors,628,72929,49220,9,1
+Male,30,Bachelors,699,34343,26598,12,0
+Male,37,Masters,597,101173,42480,15,1
+Male,31,Bachelors,797,64791,34703,25,1
+Male,42,Bachelors,827,54134,5066,13,1
+Male,31,Bachelors,647,72101,12533,10,1
+Male,32,Masters,574,94443,20103,9,1
+Female,44,Bachelors,833,82530,9616,5,1
+Female,64,High School,617,71799,43498,3,0
+Female,38,Masters,556,29827,48492,20,0
+Female,55,Masters,686,87653,16772,0,0
+Male,64,High School,713,38699,28849,6,0
+Male,27,High School,632,116419,17940,23,1
+Female,48,High School,687,30313,21932,8,0
+Male,51,Bachelors,622,38598,34769,7,0
+Female,63,Bachelors,786,53807,29648,4,0
+Male,37,Masters,595,95423,37966,18,1
+Female,25,Bachelors,655,94390,32777,9,1
+Male,37,Bachelors,837,70226,37567,10,1
+Female,38,Bachelors,811,84550,22174,24,1
+Male,41,Masters,725,105072,47598,14,1
+Female,56,Bachelors,715,28558,18798,5,0
+Male,51,Doctorate,694,100308,22558,14,1
+Female,60,Bachelors,832,75113,49237,4,1
+Female,22,High School,603,77999,5178,28,1
+Male,47,Bachelors,727,80878,25470,18,1
+Female,29,Bachelors,793,61343,22118,21,1
+Female,54,Bachelors,676,83219,27616,18,1
+Male,48,High School,820,60186,5798,9,1
+Female,34,High School,681,61966,12601,11,0
+Female,52,Masters,642,58769,30363,21,1
+Female,26,High School,622,78218,7795,3,0
+Male,31,Masters,797,44229,36926,17,1
+Male,49,High School,822,100209,42356,15,1
+Female,40,Bachelors,592,52877,12297,7,0
+Female,50,Bachelors,590,83001,8084,3,0
+Male,43,Bachelors,719,63084,35329,24,1
+Female,39,Bachelors,761,106780,16110,22,1
+Male,56,High School,717,117892,5731,11,1
+Male,23,High School,588,41806,6129,1,0
+Male,47,Bachelors,794,113635,33022,3,1
+Male,63,Bachelors,700,62034,6605,4,0
+Female,39,Doctorate,660,65317,16970,2,0
+Male,43,Masters,596,80468,48705,8,1
+Female,51,Masters,612,44094,49130,28,1
+Female,60,Masters,774,82796,34265,20,1
+Female,55,Bachelors,618,35589,37330,17,0
+Male,53,High School,848,82221,7933,10,1
+Male,55,Doctorate,839,26657,20187,2,0
+Female,21,Bachelors,845,64531,30791,29,1
+Female,34,Bachelors,752,77227,29900,24,1
+Male,53,High School,610,28164,10074,22,1
+Female,55,Bachelors,710,118078,31426,1,1
+Female,25,Bachelors,565,108973,44867,8,1
+Female,58,Masters,643,66247,5893,13,1
+Female,61,Bachelors,687,44601,39158,3,0
+Female,31,Bachelors,587,118966,24773,28,1
+Male,22,Doctorate,676,75599,9239,8,1
+Female,64,High School,824,96545,25863,12,1
+Female,37,Bachelors,713,29552,8432,17,0
+Male,59,High School,626,34417,40139,14,0
+Male,40,Masters,723,83579,6515,27,1
+Male,34,Doctorate,640,93207,36670,9,1
+Female,52,High School,787,97055,44094,15,1
+Female,54,Masters,813,103270,19605,11,1
+Male,45,High School,728,28722,10586,19,1
+Female,27,Doctorate,758,95442,40685,4,1
+Male,55,Masters,622,65031,36186,1,0
+Female,49,Masters,656,104235,31928,9,1
+Female,42,High School,844,46438,37728,0,0
+Female,61,Doctorate,833,83819,22551,6,1
+Male,63,Masters,731,68856,26493,25,1
+Male,33,Bachelors,586,58576,25711,16,1
+Male,33,Masters,686,66938,25039,15,1
+Male,21,High School,605,74028,41561,26,1
+Female,56,Masters,736,84807,14947,26,1
+Female,24,High School,807,74877,37335,23,1
+Female,57,Masters,607,68461,20859,2,0
+Female,64,Bachelors,672,118474,28122,13,1
+Female,60,High School,737,65469,6577,9,1
+Female,33,High School,779,108136,47256,21,1
+Female,58,High School,717,45435,33350,6,0
+Female,44,Bachelors,663,109117,46932,25,1
+Male,39,Bachelors,801,39191,38798,16,1
+Male,21,Bachelors,656,109726,36898,29,1
+Male,58,High School,586,52386,20881,5,0
+Female,25,High School,641,56721,15785,22,1
+Female,36,Masters,567,79786,11691,21,1
+Male,44,High School,612,38704,22297,3,0
+Female,47,Doctorate,699,81635,11358,16,1
+Female,21,Masters,688,27123,24581,26,1
+Male,54,Bachelors,735,115710,6462,8,1
+Male,56,Bachelors,734,87993,20511,3,1
+Female,24,Masters,754,105122,15570,6,1
+Male,20,High School,809,50416,49414,22,1
+Female,59,High School,763,26814,20474,1,0
+Male,31,High School,805,103537,12037,16,1
+Female,55,Masters,684,75258,33129,23,1
+Female,64,High School,610,41508,47267,7,0
+Female,42,Bachelors,637,110166,18386,22,1
+Female,50,Doctorate,756,103916,11221,29,1
+Male,30,Masters,678,60699,28474,14,1
+Male,29,Bachelors,552,71335,45537,14,1
+Male,22,High School,791,71806,26045,7,1
+Female,33,Masters,670,102853,30783,15,1
+Female,35,Bachelors,651,88768,45157,18,1
+Female,29,High School,587,60739,9922,10,0
+Male,48,High School,682,59785,27706,1,0
+Male,29,Doctorate,751,56980,47771,22,1
+Male,31,Bachelors,570,114335,37479,23,1
+Male,49,Masters,791,119702,10178,16,1
+Female,60,Masters,658,110016,35022,27,1
+Male,20,Bachelors,633,26609,20240,25,1
+Male,24,Bachelors,632,91253,31220,15,1
+Female,39,Bachelors,840,110481,41736,24,1
+Male,27,Bachelors,618,116128,7716,14,1
+Male,62,Bachelors,678,53141,21574,12,1
+Female,31,Masters,745,55009,22719,14,1
+Male,20,Bachelors,689,31782,13181,26,1
+Female,39,Masters,832,117072,49066,3,1
+Female,47,Bachelors,783,50933,25213,15,1
+Female,62,Bachelors,572,102154,11380,29,1
+Male,56,Bachelors,702,33307,5615,11,0
+Female,56,Bachelors,826,117207,5463,29,1
+Male,31,Masters,610,100874,36973,3,1
+Male,56,High School,601,63346,14158,2,0
+Male,63,Bachelors,702,75772,25651,21,1
+Female,47,High School,786,97084,8158,16,1
+Male,34,Bachelors,581,65149,25008,21,1
+Male,25,Bachelors,604,111700,9938,17,1
+Female,63,Bachelors,585,52526,43185,24,1
+Male,39,Doctorate,659,110712,27388,17,1
+Male,33,Bachelors,726,93477,13881,22,1
+Male,21,Masters,844,30695,10603,27,1
+Male,28,Bachelors,646,64169,39980,16,1
+Male,56,Bachelors,762,72947,27504,11,1
+Male,39,High School,686,72224,21766,22,1
+Female,45,High School,555,70865,33386,20,1
+Male,48,Bachelors,658,50553,16695,23,1
+Male,20,Bachelors,584,85410,22796,3,0
+Female,54,High School,588,115895,47543,11,1
+Male,25,High School,699,49816,19559,25,1
+Female,56,High School,667,80026,43914,22,1
+Male,24,Doctorate,810,75705,38139,21,1
+Male,52,Bachelors,636,86922,43333,20,1
+Male,33,Bachelors,625,98914,13802,19,1
+Male,31,High School,763,26881,13307,14,1
+Male,61,Bachelors,834,64567,45205,22,1
+Male,39,High School,788,72365,38214,27,1
+Male,43,High School,714,104211,39159,15,1
+Male,62,Bachelors,636,95122,16516,4,1
+Male,53,High School,690,50006,34086,20,1
+Male,44,High School,709,66198,35480,14,1
+Male,48,High School,595,47831,49659,16,1
+Male,58,High School,661,41459,43737,17,1
+Female,50,High School,594,57443,14265,4,0
+Male,62,Bachelors,796,67316,10454,12,1
+Female,42,Masters,653,89486,40918,18,1
+Female,63,Bachelors,634,30877,31181,29,1
+Male,57,Bachelors,683,64553,20386,12,1
+Female,39,High School,657,29922,44182,17,0
+Female,42,Doctorate,567,29686,42425,13,0
+Male,64,Bachelors,643,57766,48254,29,1
+Male,35,High School,699,104943,29327,3,1
+Female,61,Bachelors,795,57006,26181,3,0
+Female,27,High School,838,56422,26452,19,1
+Male,40,Bachelors,758,37205,43248,19,1
+Male,20,Bachelors,675,111590,45801,18,1
+Male,27,Masters,784,48527,38751,12,1
+Male,48,Bachelors,671,43443,26991,11,0
+Female,51,Masters,687,41524,46311,6,0
+Male,57,Doctorate,664,53202,14916,24,1
+Male,24,High School,711,90552,15143,11,1
+Female,41,High School,750,71142,30855,20,1
+Male,53,Bachelors,783,86692,20581,3,1
+Male,20,Bachelors,577,107384,6907,26,1
+Female,45,Bachelors,560,45855,34424,1,0
+Female,62,Doctorate,755,108747,28308,1,1
+Male,29,Masters,716,85372,46984,4,1
+Male,49,Bachelors,796,50095,46505,22,1
+Male,37,Bachelors,596,63724,41942,9,0
+Male,36,Masters,795,74241,31957,9,1
+Male,45,Doctorate,676,77003,30464,8,1
+Male,27,Masters,696,93379,28649,12,1
+Male,59,High School,667,119837,47065,6,1
+Male,31,Bachelors,701,116996,32125,4,1
+Male,46,High School,621,119283,39758,25,1
+Male,27,High School,686,40972,10596,9,0
+Male,44,High School,724,118846,21374,9,1
+Male,23,Bachelors,838,47927,8775,5,1
+Male,52,Bachelors,568,91630,32388,26,1
+Female,20,High School,744,77347,26029,27,1
+Female,38,Bachelors,724,113860,23445,18,1
+Female,50,Bachelors,690,111210,19645,20,1
+Female,35,Bachelors,795,94518,36105,7,1
+Male,33,High School,642,70283,18668,0,0
+Male,24,Bachelors,788,106326,20960,27,1
+Male,60,Masters,754,37205,16357,16,1
+Female,45,High School,597,114874,42203,6,1
+Female,47,High School,794,37748,20804,13,1
+Male,21,Bachelors,844,46097,19626,20,1
+Male,25,Doctorate,677,28092,33132,29,1
+Male,28,Bachelors,831,78311,12951,20,1
+Male,52,Bachelors,566,47692,11449,16,1
+Female,60,Bachelors,620,48862,24065,8,0
+Female,44,Bachelors,818,115396,40967,16,1
+Male,32,High School,831,104507,44536,4,1
+Female,28,Bachelors,556,105152,14130,25,1
+Female,32,Doctorate,652,95469,28824,24,1
+Male,50,Bachelors,742,29926,46401,29,1
+Male,60,Masters,790,116299,41993,19,1
+Male,30,Masters,611,28969,36875,28,1
+Male,23,High School,566,60733,11054,7,0
+Male,53,Doctorate,720,94855,39273,5,1
+Male,57,High School,574,66743,46821,10,0
+Male,23,Bachelors,800,64876,15832,18,1
+Male,57,High School,802,45323,34670,3,0
+Female,38,High School,756,41428,27852,17,1
+Male,25,Bachelors,578,59578,28620,0,0
+Male,53,High School,666,111486,33307,12,1
+Male,37,Bachelors,831,89140,6551,13,1
+Female,32,Bachelors,693,108829,32812,23,1
+Male,60,High School,574,31364,18799,0,0
+Male,42,High School,705,60349,31312,29,1
+Female,38,Bachelors,622,25691,44620,28,1
+Female,64,Bachelors,669,91467,6449,10,1
+Female,30,Masters,642,70896,29426,16,1
+Male,20,Bachelors,635,82062,40427,3,0
+Male,43,Masters,667,104762,45277,25,1
+Female,26,Bachelors,782,38861,36551,11,0
+Female,44,Bachelors,748,113302,29277,9,1
+Female,40,Bachelors,755,88928,40489,5,1
+Female,34,High School,696,108231,14637,24,1
+Male,20,Bachelors,820,66347,48258,0,1
+Female,31,Masters,688,28121,40693,6,0
+Male,26,Bachelors,730,108793,14824,25,1
+Male,34,Masters,579,53164,31950,26,1
+Male,40,Masters,606,50491,28488,20,1
+Male,38,Masters,781,84222,44008,27,1
+Male,48,Doctorate,695,48165,5215,15,1
+Male,44,Bachelors,597,28748,45067,23,1
+Female,52,Bachelors,743,51553,16523,13,1
+Male,51,Bachelors,773,85380,15364,22,1
+Female,54,Bachelors,685,69331,8153,19,1
+Male,63,Bachelors,571,64560,28834,19,1
+Male,57,Masters,555,78865,39474,5,0
+Male,45,Bachelors,753,71686,48066,21,1
+Male,30,Bachelors,788,100910,39335,24,1
+Male,54,High School,734,29675,15400,27,1
+Male,27,Bachelors,841,91706,15345,4,1
+Male,33,High School,769,102986,38896,23,1
+Female,29,Masters,665,101216,24894,20,1
+Male,21,Bachelors,598,35068,33899,17,1
+Female,28,High School,722,79460,45635,14,1
+Male,22,High School,631,71418,33229,5,0
+Female,40,Bachelors,594,51206,10583,24,1
+Female,45,Bachelors,569,25287,9897,28,1
+Female,27,Bachelors,770,47337,11001,18,1
+Male,21,High School,672,45666,48881,0,0
+Male,25,Bachelors,783,26161,9567,0,0
+Male,47,Bachelors,770,115071,14271,12,1
+Female,48,Bachelors,552,63751,16703,2,0
+Female,45,Bachelors,731,107063,18329,9,1
+Female,44,Bachelors,755,114389,40509,20,1
+Male,31,High School,589,39758,11256,2,0
+Female,24,Doctorate,608,90780,5228,8,0
+Female,53,Bachelors,611,28178,29746,7,0
+Male,56,Bachelors,681,56831,21678,2,0
+Male,34,High School,609,27176,42052,24,1
+Female,63,Bachelors,671,58654,28185,12,0
+Female,55,High School,656,51627,38686,5,0
+Female,34,Bachelors,645,77550,16445,12,1
+Male,62,Doctorate,784,69910,38266,22,1
+Female,42,Bachelors,611,115417,7809,19,1
+Male,25,High School,805,83251,42729,19,1
+Male,63,High School,598,60422,46785,11,1
+Male,62,Bachelors,708,36984,41547,12,1
+Female,64,High School,673,114312,47818,1,1
+Female,40,High School,756,86386,39886,20,1
+Male,42,Masters,597,108291,11391,23,1
+Male,62,Bachelors,685,32135,5145,22,1
+Female,35,High School,750,25320,18929,15,0
+Male,34,Doctorate,799,119171,29326,22,1
+Female,44,High School,844,46684,34991,5,0
+Male,55,Doctorate,758,80913,42333,18,1
+Male,30,Bachelors,760,113774,21576,20,1
+Male,34,Masters,741,46889,44405,12,1
+Male,23,Bachelors,593,73899,33464,16,1
+Female,40,Masters,578,35770,13243,22,0
+Male,32,Doctorate,608,64321,36601,8,0
+Male,41,High School,620,110962,7410,16,1
+Female,38,Doctorate,641,66777,6820,28,1
+Male,53,Bachelors,814,71250,40289,1,1
+Male,33,Bachelors,769,98034,43650,18,1
+Female,23,Bachelors,764,65130,39635,18,1
+Female,46,Bachelors,826,106931,12465,23,1
+Male,48,High School,613,74346,37439,6,0
+Female,47,Bachelors,841,27537,32314,21,1
+Female,54,Bachelors,794,109762,49229,9,1
+Male,27,Masters,611,40216,24583,9,0
+Male,35,Masters,719,109149,32155,26,1
+Female,61,Bachelors,818,28009,43871,19,1
+Female,55,Bachelors,816,114904,17197,8,1
+Male,49,High School,603,54327,34511,16,1
+Female,37,High School,565,39209,20424,26,1
+Female,21,High School,557,73443,5240,14,0
+Male,32,Bachelors,653,40029,9631,1,0
+Male,23,High School,608,92613,14599,29,1
+Male,45,Doctorate,589,104443,49462,3,1
+Female,44,Bachelors,786,81997,29658,18,1
+Male,49,Bachelors,643,87559,42845,16,1
+Female,30,Bachelors,771,89892,37574,4,1
+Female,26,High School,753,95409,41536,6,1
+Female,50,Bachelors,687,33635,46910,17,0
+Male,63,Bachelors,849,58065,12995,20,1
+Female,29,Bachelors,756,58783,30186,21,1
+Male,58,Bachelors,630,59152,34245,26,1
+Female,32,Doctorate,767,83741,27813,6,1
+Male,50,Masters,551,76502,18276,16,1
+Male,26,Bachelors,727,54092,24989,6,0
+Female,61,Bachelors,828,42653,17746,3,0
+Male,61,Bachelors,695,65469,49243,7,1
+Male,55,High School,773,111483,23557,12,1
+Female,39,Bachelors,611,84754,33060,3,0
+Female,23,High School,843,54978,11568,5,0
+Female,26,Bachelors,788,112592,40369,24,1
+Female,20,Bachelors,744,119543,24041,4,1
+Male,63,High School,715,68169,11080,29,1
+Male,64,Doctorate,771,73287,18854,11,1
+Male,61,Doctorate,610,79745,7159,3,0
+Male,32,Masters,678,30543,32025,23,1
+Female,41,Bachelors,722,81392,46081,28,1
+Female,40,Masters,705,46067,9368,8,0
+Male,41,High School,659,76033,39085,3,0
+Male,47,Masters,818,70256,32094,18,1
+Female,28,High School,827,115633,6230,23,1
+Male,45,Masters,623,94345,22517,13,1
+Female,28,High School,756,47191,28991,4,0
+Male,34,Masters,828,111803,6301,17,1
+Female,29,Doctorate,753,97742,33610,9,1
+Male,43,High School,710,111593,20927,24,1
+Female,61,Bachelors,577,53992,39678,18,0
+Female,27,Doctorate,806,106531,29466,11,1
+Female,43,Bachelors,714,73803,19904,17,1
+Female,35,Masters,612,88477,45875,16,1
+Female,45,Bachelors,571,38210,31081,29,1
+Female,46,Bachelors,619,108329,29354,23,1
+Male,56,High School,645,51270,32761,10,0
+Female,23,High School,712,87008,23300,2,0
+Female,43,Masters,628,30197,34491,22,0
+Male,38,Bachelors,554,32452,40525,16,0
+Female,55,Bachelors,669,66486,31532,0,0
+Female,58,Bachelors,727,39859,11464,14,0
+Female,29,Bachelors,725,52236,21562,27,1
+Male,44,Masters,766,56899,46856,8,1
+Male,37,Doctorate,605,57083,47511,14,1
+Female,38,Bachelors,736,92708,13683,27,1
+Female,55,Masters,781,41663,37634,23,1
+Male,29,Masters,804,118076,5060,27,1
+Female,52,Bachelors,653,44053,14269,28,1
+Female,24,Doctorate,626,36085,28065,2,0
+Male,54,High School,779,55564,7895,21,1
+Female,63,High School,807,114745,20323,26,1
+Male,53,Masters,813,84095,17352,18,1
+Male,52,Bachelors,731,94517,49643,12,1
+Male,40,Masters,805,46153,43591,11,1
+Female,36,Masters,587,30247,35890,19,0
+Male,41,High School,725,35553,37016,0,0
+Male,56,Masters,576,45811,16962,20,1
+Male,34,Bachelors,825,31135,38302,16,1
+Male,54,Bachelors,689,30573,24846,12,0
+Female,47,Bachelors,848,104267,9011,0,1
+Male,26,Doctorate,836,32189,24782,9,1
+Male,51,High School,640,105077,7155,14,1
+Female,30,Bachelors,610,68646,44725,26,1
+Male,29,Bachelors,712,101623,14196,26,1
+Male,28,Masters,692,78687,48459,29,1
+Male,33,Bachelors,802,93312,26709,6,1
+Male,32,High School,818,52564,18327,27,1
+Male,44,High School,840,53835,40474,21,1
+Male,21,Bachelors,736,86587,37769,17,1
+Male,54,Masters,840,32697,46993,15,1
+Female,26,High School,635,105165,29700,13,1
+Male,40,High School,715,98922,19820,26,1
+Female,37,Doctorate,663,42046,15891,27,1
+Female,22,High School,732,82823,39629,17,1
+Male,61,Doctorate,756,98580,10269,26,1
+Female,58,Bachelors,805,78370,48880,6,1
+Male,60,Masters,784,34615,13320,16,1
+Female,30,High School,552,30060,15740,28,1
+Male,58,High School,757,101436,40897,17,1
+Male,43,Masters,746,85519,35930,11,1
+Male,38,Masters,674,96117,22285,7,1
+Female,23,Masters,687,86158,19380,21,1
+Male,45,High School,574,59782,16360,29,1
+Female,57,Masters,617,110709,10398,1,0
+Male,61,Masters,610,103533,10529,6,1
+Female,51,Bachelors,578,83255,34062,3,0
+Male,58,Masters,568,97684,41686,17,1
+Female,64,Masters,720,81918,22451,27,1
+Male,55,Bachelors,623,109284,11937,5,1
+Male,59,High School,610,104558,44886,26,1
+Male,56,Bachelors,702,110549,15860,8,1
+Male,52,High School,825,106422,30142,26,1
+Female,55,Bachelors,597,50256,30279,8,0
+Male,22,Bachelors,760,55005,43106,13,1
+Female,28,High School,688,31638,40908,7,0
+Male,27,Bachelors,659,62419,45764,18,1
+Male,52,High School,732,58377,19201,2,0
+Male,25,Masters,577,68116,45544,17,1
+Male,60,Doctorate,746,61634,42711,4,1
+Female,58,High School,740,107291,13997,13,1
+Male,23,Doctorate,600,48382,45566,27,1
+Male,32,Bachelors,698,81063,25175,29,1
+Female,21,High School,817,47394,45860,3,0
+Female,24,High School,599,92789,8225,6,0
+Male,63,Bachelors,795,25864,49578,19,1
+Male,46,Masters,662,65222,40228,24,1
+Female,51,Masters,719,38666,46505,27,1
+Male,40,High School,715,45955,28110,11,1
+Male,27,High School,563,106845,15754,1,1
+Male,57,Bachelors,752,94590,31655,10,1
+Female,27,High School,837,91471,48601,13,1
+Female,22,High School,738,113314,8114,21,1
+Male,63,High School,704,68298,31502,22,1
+Male,22,Masters,604,88108,25028,15,1
+Male,41,Doctorate,731,73924,22587,19,1
+Female,25,Bachelors,759,41709,47719,28,1
+Male,21,Doctorate,624,34726,40333,5,0
+Male,42,Bachelors,826,85824,8174,22,1
+Female,63,Bachelors,682,65542,40398,3,0
+Male,21,High School,608,45245,40929,14,1
+Female,57,Bachelors,731,59753,9321,23,1
+Male,36,Doctorate,613,104788,35435,24,1
+Male,54,Bachelors,809,46316,12099,0,0
+Male,53,Bachelors,742,109698,28760,6,1
+Female,42,Bachelors,692,40960,16360,24,1
+Female,49,High School,653,55791,15313,11,0
+Female,27,Masters,763,50216,25462,9,0
+Male,41,Bachelors,791,57467,10801,4,1
+Female,63,Bachelors,758,89427,19130,11,1
+Male,55,Bachelors,642,87047,19271,17,1
+Male,24,Bachelors,691,98290,21075,9,1
+Female,32,High School,661,72014,41919,5,0
+Male,48,Bachelors,608,29078,46679,27,1
+Male,50,High School,592,103389,23984,11,1
+Male,35,Masters,756,75519,27559,6,1
+Male,61,Masters,817,29042,17861,17,1
+Male,49,Masters,845,74052,38434,1,1
+Female,35,Bachelors,667,39389,21667,9,0
+Male,31,Bachelors,569,93111,10840,14,1
+Female,36,High School,771,118715,8565,29,1
+Female,35,Masters,715,75733,48194,11,1
+Male,31,High School,680,59754,25977,25,1
+Male,27,Bachelors,705,43624,26118,16,1
+Male,39,High School,733,110886,27641,3,1
+Female,22,High School,639,51681,12366,6,0
+Male,35,Bachelors,643,114524,31636,29,1
+Female,49,High School,562,106006,20630,8,1
+Male,64,Masters,842,49704,25056,18,1
+Female,42,Bachelors,779,119913,12382,27,1
+Male,47,High School,841,119108,21149,26,1
+Male,59,Bachelors,575,32493,5992,22,1
+Female,24,High School,624,94639,11858,6,0
+Female,39,High School,848,79383,7121,22,1
+Male,59,Masters,699,27994,32160,1,0
+Female,63,High School,697,94280,25906,5,1
+Male,20,Masters,557,72234,24572,17,1
+Female,49,High School,578,72291,9136,5,0
+Female,40,High School,845,117868,21727,12,1
+Male,39,Masters,758,30594,37167,25,1
+Male,25,Bachelors,677,32371,20479,18,1
+Male,41,High School,665,72315,36376,29,1
+Male,37,Bachelors,693,108564,9823,1,1
+Female,27,High School,784,104526,9920,11,1
+Male,58,Masters,556,41626,24585,14,0
+Male,51,Bachelors,594,111005,43239,13,1
+Female,52,Masters,788,32130,22272,5,0
+Female,35,Masters,704,31828,31619,17,0
+Male,31,Bachelors,730,82514,14533,4,1
+Male,57,Doctorate,764,77664,44895,17,1
+Male,53,Bachelors,637,42883,8720,2,0
+Male,33,Doctorate,805,68059,24267,2,1
+Female,55,High School,622,109078,20696,21,1
+Male,52,Bachelors,728,67932,34968,21,1
+Female,42,Bachelors,761,86269,28345,9,1
+Male,64,Bachelors,842,100986,30693,18,1
+Female,21,Bachelors,783,110959,24385,2,1
+Female,60,Masters,788,27035,23122,28,1
+Female,40,High School,772,65745,6364,11,1
+Male,21,High School,668,42241,7708,28,1
+Male,46,Masters,813,77975,17982,15,1
+Male,28,Bachelors,756,48154,22308,16,1
+Female,20,Doctorate,644,50625,37919,6,0
+Female,30,Masters,771,69950,30161,12,1
+Female,22,Doctorate,825,81396,40089,23,1
+Female,42,Masters,780,38331,18865,1,0
+Female,45,High School,668,88927,5495,3,0
+Male,23,High School,817,111226,49755,9,1
+Female,37,Masters,822,109719,7148,6,1
+Male,25,Bachelors,613,88014,38324,23,1
+Male,54,High School,847,64346,18393,16,1
+Male,41,Bachelors,560,95411,6552,19,1
+Male,62,Doctorate,647,79478,40853,5,1
+Male,34,Bachelors,620,37254,37924,18,1
+Female,41,Bachelors,607,80734,13926,4,0
+Male,56,Bachelors,839,53621,35851,9,1
+Female,61,High School,800,101441,28889,8,1
+Male,31,Bachelors,825,71121,44930,26,1
+Male,61,Bachelors,599,106418,13055,12,1
+Male,57,High School,765,85197,9654,18,1
+Male,37,Masters,601,109577,27634,20,1
+Female,64,Bachelors,820,119634,37363,23,1
+Male,54,Masters,633,67431,16468,5,0
+Female,49,Masters,842,29837,37922,3,0
+Male,43,High School,675,115025,45718,23,1
+Female,61,Bachelors,845,108163,22380,26,1
+Female,49,Bachelors,621,96232,31870,2,0
+Female,33,Masters,845,73994,42394,2,1
+Male,25,High School,785,104079,19259,3,1
+Male,22,Bachelors,605,37615,19873,24,1
+Male,35,Bachelors,659,26466,18016,4,0
+Female,26,High School,741,55771,47137,7,0
+Male,33,High School,642,108886,5153,15,1
+Male,28,Bachelors,605,90911,12853,21,1
+Female,34,Masters,609,45746,17379,2,0
+Male,40,Bachelors,687,113422,20792,23,1
+Female,54,Bachelors,588,85739,43367,11,1
+Male,21,Bachelors,577,98369,23100,24,1
+Male,46,Masters,598,26893,16049,7,0
+Female,21,High School,674,55573,5786,12,0
+Male,54,Masters,562,65874,9368,3,0
+Female,37,High School,585,102362,35699,13,1
+Male,33,Bachelors,650,112460,42040,13,1
+Male,39,High School,831,58367,32454,12,1
+Female,37,High School,635,46199,43762,26,1
+Female,29,Bachelors,553,116404,28600,5,1
+Female,44,High School,772,99328,34238,16,1
+Male,21,Masters,715,82724,30241,3,1
+Female,44,High School,827,111133,24810,7,1
+Male,52,Bachelors,679,61405,25167,16,1
+Male,55,Bachelors,580,40989,26811,2,0
+Female,50,High School,560,53931,44779,16,0
+Male,33,High School,645,34290,25085,8,0
+Female,20,Bachelors,739,63367,14261,1,0
+Male,35,Bachelors,741,104878,23733,24,1

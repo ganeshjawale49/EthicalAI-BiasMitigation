@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Upload Dataset - Ethical AI System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4">Dataset Management</h2>
+
+    <div class="row g-4">
+        <!-- Upload Form -->
+        <div class="col-md-6">
+            <div class="card card-custom p-4 h-100">
+                <h4 class="fw-bold mb-3"><i class="fa-solid fa-file-arrow-up text-primary me-2"></i> Upload Custom CSV Dataset</h4>
+                <p class="text-muted small">Upload your binary classification CSV dataset containing demographic/sensitive features (Gender, Race, Age).</p>
+                
+                <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="form-label font-weight-bold">Select CSV File</label>
+                        <input type="file" name="file" class="form-control" accept=".csv" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2"><i class="fa-solid fa-cloud-arrow-up me-2"></i> Upload and Analyze Schema</button>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="bg-light p-3 rounded">
+                    <h6 class="fw-bold mb-2"><i class="fa-solid fa-bolt text-warning me-2"></i> Quick Demo Load</h6>
+                    <p class="small text-muted mb-2">Don't have a dataset ready? Load our pre-configured benchmark credit scoring dataset with synthetic gender bias.</p>
+                    <form action="{{ url_for('load_sample_dataset') }}" method="POST">
+                        <button type="submit" class="btn btn-sm btn-outline-dark w-100"><i class="fa-solid fa-play me-2"></i> Load Benchmark Credit Dataset (1,000 Rows)</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset List -->
+        <div class="col-md-6">
+            <div class="card card-custom p-4 h-100">
+                <h4 class="fw-bold mb-3"><i class="fa-solid fa-database text-success me-2"></i> Uploaded Datasets</h4>
+                {% if datasets %}
+                    <ul class="list-group list-group-flush">
+                        {% for ds in datasets %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent py-3">
+                                <div>
+                                    <h6 class="mb-1 fw-bold text-primary"><i class="fa-solid fa-table me-2"></i> {{ ds.filename }}</h6>
+                                    <span class="badge bg-secondary me-2">{{ ds.row_count }} Rows</span>
+                                    <span class="badge bg-secondary me-2">{{ ds.column_count }} Columns</span>
+                                    <div class="small text-muted mt-1">
+                                        Sensitive Col: <span class="fw-bold text-dark">{{ ds.sensitive_column or 'Not Set' }}</span> | 
+                                        Target: <span class="fw-bold text-dark">{{ ds.target_column or 'Not Set' }}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="{{ url_for('preprocess_page', dataset_id=ds.id) }}" class="btn btn-sm btn-primary"><i class="fa-solid fa-sliders me-1"></i> Configure & Train</a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-inbox fa-3x mb-3"></i>
+                        <p>No datasets available. Upload a CSV or load the benchmark credit dataset.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

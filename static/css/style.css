@@ -1,0 +1,176 @@
+/* Modern Glassmorphism & Ethical AI Custom Design System */
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --secondary-color: #0f172a;
+    --accent-color: #3b82f6;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navbar Custom Styling */
+.navbar-custom {
+    background: #0f172a;
+    border-bottom: 2px solid #2563eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #ffffff !important;
+}
+
+.nav-link {
+    color: #cbd5e1 !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: #60a5fa !important;
+}
+
+/* Hero & Header Banners */
+.hero-banner {
+    background: var(--bg-gradient);
+    color: white;
+    padding: 3.5rem 0;
+    border-radius: 0 0 1.5rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.hero-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #60a5fa, #93c5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Glassmorphism Cards */
+.card-custom {
+    background: var(--card-bg);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Metric Display Cards */
+.metric-card {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card.primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+.metric-card.success { background: linear-gradient(135deg, #10b981, #059669); }
+.metric-card.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.metric-card.danger  { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+.metric-val {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.9;
+}
+
+/* Status Badges */
+.badge-fair {
+    background-color: #d1fae5;
+    color: #065f46;
+    padding: 0.5em 0.8em;
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+
+.badge-biased {
+    background-color: #fee2e2;
+    color: #991b1b;
+    padding: 0.5em 0.8em;
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--primary-hover);
+    color: white;
+}
+
+/* Confusion Matrix Box */
+.cm-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.cm-cell {
+    padding: 1.2rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+}
+
+.cm-cell.tn { background: #64748b; }
+.cm-cell.fp { background: #ef4444; }
+.cm-cell.fn { background: #f59e0b; }
+.cm-cell.tp { background: #10b981; }
+
+/* LLM Box */
+.llm-box {
+    background: #f0f9ff;
+    border-left: 5px solid #0284c7;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+footer {
+    margin-top: auto;
+    background: #0f172a;
+    color: #94a3b8;
+    padding: 1.5rem 0;
+    text-align: center;
+    font-size: 0.9rem;
+}

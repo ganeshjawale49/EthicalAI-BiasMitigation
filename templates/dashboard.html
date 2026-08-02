@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Ethical AI System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Executive Fairness Dashboard</h2>
+            <p class="text-muted mb-0">Overview of evaluated Machine Learning models and bias audit status.</p>
+        </div>
+        <div>
+            <a href="{{ url_for('upload_page') }}" class="btn btn-primary-custom"><i class="fa-solid fa-plus me-2"></i> Upload New Dataset</a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card card-custom metric-card primary">
+                <div class="metric-label">Total Datasets</div>
+                <div class="metric-val">{{ datasets|length }}</div>
+                <i class="fa-solid fa-database position-absolute end-0 bottom-0 m-3 opacity-25 fa-2x"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-custom metric-card success">
+                <div class="metric-label">Model Runs</div>
+                <div class="metric-val">{{ model_runs|length }}</div>
+                <i class="fa-solid fa-microchip position-absolute end-0 bottom-0 m-3 opacity-25 fa-2x"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-custom metric-card warning">
+                <div class="metric-label">Mitigated Models</div>
+                <div class="metric-val">{{ mitigated_count }}</div>
+                <i class="fa-solid fa-shield-halved position-absolute end-0 bottom-0 m-3 opacity-25 fa-2x"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-custom metric-card danger">
+                <div class="metric-label">Biased Models Flagged</div>
+                <div class="metric-val">{{ biased_count }}</div>
+                <i class="fa-solid fa-triangle-exclamation position-absolute end-0 bottom-0 m-3 opacity-25 fa-2x"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Audits Table -->
+    <div class="card card-custom p-4">
+        <h5 class="fw-bold mb-3"><i class="fa-solid fa-clock-history me-2 text-primary"></i> Recent Model Audits</h5>
+        {% if model_runs %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Model</th>
+                            <th>Dataset</th>
+                            <th>Accuracy</th>
+                            <th>Disparate Impact</th>
+                            <th>Fairness Status</th>
+                            <th>Mitigated?</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for run in model_runs %}
+                        <tr>
+                            <td class="fw-bold">{{ run.model_name }}</td>
+                            <td>{{ run.filename }}</td>
+                            <td>{{ (run.accuracy * 100)|round(1) }}%</td>
+                            <td class="fw-bold {{ 'text-danger' if run.disparate_impact < 0.8 else 'text-success' }}">{{ run.disparate_impact }}</td>
+                            <td>
+                                {% if 'BIASED' in run.fairness_status %}
+                                    <span class="badge badge-biased"><i class="fa-solid fa-xmark me-1"></i> {{ run.fairness_status }}</span>
+                                {% else %}
+                                    <span class="badge badge-fair"><i class="fa-solid fa-check me-1"></i> {{ run.fairness_status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if run.is_mitigated %}
+                                    <span class="badge bg-success">Yes ({{ run.mitigation_method }})</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('bias_detection_page', model_run_id=run.id) }}" class="btn btn-sm btn-outline-primary me-1"><i class="fa-solid fa-chart-column"></i> Metrics</a>
+                                <a href="{{ url_for('llm_audit_page', model_run_id=run.id) }}" class="btn btn-sm btn-outline-info me-1"><i class="fa-solid fa-brain"></i> LLM Audit</a>
+                                <a href="{{ url_for('mitigation_page', model_run_id=run.id) }}" class="btn btn-sm btn-outline-success"><i class="fa-solid fa-wand-magic-sparkles"></i> Mitigate</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4 text-muted">
+                <i class="fa-solid fa-folder-open fa-3x mb-3"></i>
+                <p>No model audits found yet. Upload a dataset to begin bias evaluation!</p>
+                <a href="{{ url_for('upload_page') }}" class="btn btn-primary"><i class="fa-solid fa-upload me-2"></i> Upload Dataset</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Download Reports & PPT - Ethical AI System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="fa-solid fa-file-export text-primary me-2"></i> Deliverables & Report Exporter</h2>
+            <p class="text-muted mb-0">Generate final project audit reports and download the 15-Slide PowerPoint presentation deck.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- PPT PowerPoint Deck Exporter -->
+        <div class="col-md-6">
+            <div class="card card-custom p-4 h-100 border-start border-4 border-primary">
+                <h4 class="fw-bold mb-3"><i class="fa-solid fa-file-powerpoint text-danger me-2"></i> 15-Slide PowerPoint Deck (.pptx)</h4>
+                <p class="text-muted">Download the complete, professionally formatted 15-slide PowerPoint presentation deck ready for final-year engineering project viva and demonstration.</p>
+                
+                <ul class="small text-muted mb-4">
+                    <li>Includes Problem Statement, Objectives, and System Architecture</li>
+                    <li>Ethical AI Fairness Metrics (Disparate Impact, Demographic Parity)</li>
+                    <li>LLM Bias Explanation & Before/After Mitigation Results</li>
+                    <li>Future Scope & Conclusion</li>
+                </ul>
+
+                <a href="{{ url_for('download_ppt') }}" class="btn btn-primary-custom btn-lg w-100 py-3 mt-auto">
+                    <i class="fa-solid fa-download me-2"></i> Download PowerPoint Presentation (.pptx)
+                </a>
+            </div>
+        </div>
+
+        <!-- Audit Report Generator -->
+        <div class="col-md-6">
+            <div class="card card-custom p-4 h-100 border-start border-4 border-success">
+                <h4 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice text-success me-2"></i> Executive Printable Audit Report</h4>
+                <p class="text-muted">Select an evaluated model run to view and print a comprehensive Ethical AI Fairness Audit Report containing metric tables and LLM audit explanations.</p>
+                
+                {% if model_runs %}
+                    <form action="{{ url_for('generate_printable_report') }}" method="GET" target="_blank">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Select Evaluated Model Run</label>
+                            <select name="model_run_id" class="form-select" required>
+                                {% for run in model_runs %}
+                                    <option value="{{ run.id }}">#{{ run.id }} - {{ run.model_name }} ({{ run.filename }}) - DI: {{ run.disparate_impact }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg w-100 py-3 mt-auto">
+                            <i class="fa-solid fa-print me-2"></i> View & Print Audit Report
+                        </button>
+                    </form>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <p>No model runs available to generate report. Please train a model first.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

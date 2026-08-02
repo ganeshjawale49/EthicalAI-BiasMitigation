@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Train ML Model - Ethical AI System{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card card-custom p-4">
+                <h3 class="fw-bold text-center mb-3"><i class="fa-solid fa-robot text-primary me-2"></i> Train Classification Model</h3>
+                <p class="text-muted text-center mb-4">
+                    Train a baseline Scikit-Learn model on <strong>{{ dataset.filename }}</strong>. 
+                    The system will automatically compute classification accuracy, precision, recall, and evaluate fairness metrics.
+                </p>
+
+                <form action="{{ url_for('train_model_action', dataset_id=dataset.id) }}" method="POST">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Select Classifier Algorithm</label>
+                        <select name="model_name" class="form-select form-select-lg" required>
+                            <option value="RandomForest" selected>Random Forest Classifier (Recommended)</option>
+                            <option value="LogisticRegression">Logistic Regression</option>
+                            <option value="DecisionTree">Decision Tree Classifier</option>
+                            <option value="GradientBoosting">Gradient Boosting Classifier</option>
+                        </select>
+                    </div>
+
+                    <div class="p-3 bg-light rounded mb-4">
+                        <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-circle-info text-info me-2"></i> Active Pipeline Settings</h6>
+                        <ul class="mb-0 small text-muted">
+                            <li>Target Variable: <strong class="text-dark">{{ dataset.target_column }}</strong></li>
+                            <li>Sensitive Attribute: <strong class="text-dark">{{ dataset.sensitive_column }}</strong></li>
+                            <li>Privileged Baseline: <strong class="text-dark">{{ dataset.privileged_group }}</strong> (Male / Majority)</li>
+                            <li>Unprivileged Baseline: <strong class="text-dark">{{ dataset.unprivileged_group }}</strong> (Female / Minority)</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold fs-5">
+                        <i class="fa-solid fa-play me-2"></i> Train & Evaluate Bias Metrics
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
