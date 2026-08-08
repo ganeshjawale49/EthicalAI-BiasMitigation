@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.env
+.venv
+*.db-journal
+templates/__pycache__/
+templates/static/
+templates/docs/
+static/uploads/user_*

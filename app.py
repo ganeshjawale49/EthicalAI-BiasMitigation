@@ -138,24 +138,41 @@ def upload_file():
         flash(res, 'error')
         return redirect(url_for('upload_page'))
 
-@app.route('/load_sample')
+@app.route('/load_sample', methods=['GET', 'POST'])
 @login_required
 def load_sample_dataset():
     user_id = session['user_id']
-    filepath = os.path.join(Config.UPLOAD_FOLDER, 'sample_credit_bias.csv')
     filename = 'sample_credit_bias.csv'
+    filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
+    base_sample_path = os.path.join(Config.BASE_DIR, 'static', 'uploads', filename)
     
+    csv_content = ""
+    target_path = filepath if os.path.exists(filepath) else base_sample_path
+    if os.path.exists(target_path):
+        try:
+            with open(target_path, 'r', encoding='utf-8', errors='ignore') as f:
+                csv_content = f.read()
+        except Exception:
+            pass
+
     if not os.path.exists(filepath):
-        flash('Benchmark dataset file missing.', 'error')
-        return redirect(url_for('upload_page'))
+        if os.path.exists(base_sample_path):
+            import shutil
+            try:
+                shutil.copy2(base_sample_path, filepath)
+            except Exception:
+                filepath = base_sample_path
+        else:
+            flash('Benchmark dataset file missing.', 'error')
+            return redirect(url_for('upload_page'))
         
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         """INSERT INTO datasets 
-           (user_id, filename, filepath, row_count, column_count, target_column, sensitive_column, privileged_group, unprivileged_group)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (user_id, filename, filepath, 1000, 8, 'Credit_Approved', 'Gender', 'Male', 'Female')
+           (user_id, filename, filepath, csv_content, row_count, column_count, target_column, sensitive_column, privileged_group, unprivileged_group)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (user_id, filename, filepath, csv_content, 1000, 8, 'Credit_Approved', 'Gender', 'Male', 'Female')
     )
     conn.commit()
     dataset_id = cursor.lastrowid
@@ -163,6 +180,7 @@ def load_sample_dataset():
     
     flash('Benchmark credit scoring dataset loaded successfully!', 'success')
     return redirect(url_for('preprocess_page', dataset_id=dataset_id))
+
 
 # ----------------------------
 # PREPROCESSING & TRAINING
@@ -175,8 +193,12 @@ def preprocess_page(dataset_id):
         flash('Dataset not found.', 'error')
         return redirect(url_for('upload_page'))
         
-    info = inspect_dataset(ds['filepath'])
-    return render_template('preprocess.html', dataset=ds, info=info)
+    try:
+        info = inspect_dataset(ds['filepath'])
+        return render_template('preprocess.html', dataset=ds, info=info)
+    except Exception as e:
+        flash(f"Unable to load dataset details: {str(e)}", 'error')
+        return redirect(url_for('upload_page'))
 
 @app.route('/save_preprocess/<int:dataset_id>', methods=['POST'])
 @login_required
@@ -194,44 +216,56 @@ def save_preprocess_config(dataset_id):
 @login_required
 def train_page(dataset_id):
     ds = get_dataset_by_id(dataset_id)
+    if not ds:
+        flash('Dataset not found.', 'error')
+        return redirect(url_for('upload_page'))
     return render_template('train.html', dataset=ds)
 
 @app.route('/train_model_action/<int:dataset_id>', methods=['POST'])
 @login_required
 def train_model_action(dataset_id):
     ds = get_dataset_by_id(dataset_id)
+    if not ds:
+        flash('Dataset record not found.', 'error')
+        return redirect(url_for('upload_page'))
+        
     model_name = request.form.get('model_name', 'RandomForest')
     
-    # Preprocess & Train
-    prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
-    clf = train_classifier(model_name, prep['X_train'], prep['y_train'])
-    
-    perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
-    fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
-    
-    # Save Model Run to DB
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        """INSERT INTO model_runs 
-           (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score, 
-            disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff, 
-            confusion_matrix_json, fairness_status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (
-            session['user_id'], dataset_id, model_name,
-            perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
-            fairness['disparate_impact'], fairness['demographic_parity_diff'],
-            fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
-            json.dumps(perf['confusion_matrix']), fairness['fairness_status']
+    try:
+        # Preprocess & Train
+        prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
+        clf = train_classifier(model_name, prep['X_train'], prep['y_train'])
+        
+        perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
+        fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
+        
+        # Save Model Run to DB
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """INSERT INTO model_runs 
+               (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score, 
+                disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff, 
+                confusion_matrix_json, fairness_status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                session['user_id'], dataset_id, model_name,
+                perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
+                fairness['disparate_impact'], fairness['demographic_parity_diff'],
+                fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
+                json.dumps(perf['confusion_matrix']), fairness['fairness_status']
+            )
         )
-    )
-    conn.commit()
-    model_run_id = cursor.lastrowid
-    conn.close()
-    
-    flash(f"Model {model_name} trained successfully! Disparate Impact: {fairness['disparate_impact']}", 'success')
-    return redirect(url_for('bias_detection_page', model_run_id=model_run_id))
+        conn.commit()
+        model_run_id = cursor.lastrowid
+        conn.close()
+        
+        flash(f"Model {model_name} trained successfully! Disparate Impact: {fairness['disparate_impact']}", 'success')
+        return redirect(url_for('bias_detection_page', model_run_id=model_run_id))
+    except Exception as e:
+        flash(f"Error training model: {str(e)}", 'error')
+        return redirect(url_for('preprocess_page', dataset_id=dataset_id))
+
 
 # ----------------------------
 # BIAS DETECTION & LLM AUDIT
@@ -250,21 +284,26 @@ def bias_detection_page(model_run_id):
         return redirect(url_for('dashboard'))
         
     ds = get_dataset_by_id(run['dataset_id'])
-    prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
-    g_metrics = compute_group_metrics(prep['y_test'], prep['y_test'], prep['A_test']) # For selection rates view
-    
-    # Recalculate group metrics using current model
-    clf = train_classifier(run['model_name'], prep['X_train'], prep['y_train'])
-    perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
-    g_metrics = compute_group_metrics(prep['y_test'], perf['y_pred'], prep['A_test'])
-    
-    return render_template(
-        'bias_detection.html', 
-        run=dict(run), 
-        dataset=ds, 
-        cm=json.loads(run['confusion_matrix_json']),
-        g_metrics=g_metrics
-    )
+    if not ds:
+        flash('Dataset record not found.', 'error')
+        return redirect(url_for('dashboard'))
+
+    try:
+        prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
+        clf = train_classifier(run['model_name'], prep['X_train'], prep['y_train'])
+        perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
+        g_metrics = compute_group_metrics(prep['y_test'], perf['y_pred'], prep['A_test'])
+        
+        return render_template(
+            'bias_detection.html', 
+            run=dict(run), 
+            dataset=ds, 
+            cm=json.loads(run['confusion_matrix_json']),
+            g_metrics=g_metrics
+        )
+    except Exception as e:
+        flash(f"Unable to load bias evaluation details: {str(e)}", 'error')
+        return redirect(url_for('dashboard'))
 
 @app.route('/llm_audit/<int:model_run_id>')
 @login_required
@@ -280,41 +319,49 @@ def llm_audit_page(model_run_id):
         return redirect(url_for('dashboard'))
         
     ds = get_dataset_by_id(run['dataset_id'])
-    prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
-    clf = train_classifier(run['model_name'], prep['X_train'], prep['y_train'])
-    perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
-    fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
-    
-    # Check if existing audit saved
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM llm_audits WHERE model_run_id = ?", (model_run_id,))
-    existing_audit = cursor.fetchone()
-    conn.close()
-    
-    if existing_audit:
-        audit_dict = {
-            'summary_text': existing_audit['summary_text'],
-            'explanation_text': existing_audit['explanation_text'],
-            'root_cause': existing_audit['root_cause'],
-            'recommendations': json.loads(existing_audit['recommendations_json']),
-            'source': 'Saved LLM Audit'
-        }
-    else:
-        audit = analyze_bias_with_llm(
-            run['model_name'], ds['sensitive_column'], ds['privileged_group'], ds['unprivileged_group'],
-            perf, fairness
-        )
-        save_llm_audit(model_run_id, audit)
-        audit_dict = {
-            'summary_text': audit['summary'],
-            'explanation_text': audit['explanation'],
-            'root_cause': audit['root_cause'],
-            'recommendations': audit['recommendations'],
-            'source': audit['source']
-        }
+    if not ds:
+        flash('Dataset record not found.', 'error')
+        return redirect(url_for('dashboard'))
+
+    try:
+        prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
+        clf = train_classifier(run['model_name'], prep['X_train'], prep['y_train'])
+        perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
+        fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
         
-    return render_template('llm_audit.html', run=dict(run), dataset=ds, audit=audit_dict, recommendations=audit_dict['recommendations'])
+        # Check if existing audit saved
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM llm_audits WHERE model_run_id = ?", (model_run_id,))
+        existing_audit = cursor.fetchone()
+        conn.close()
+        
+        if existing_audit:
+            audit_dict = {
+                'summary_text': existing_audit['summary_text'],
+                'explanation_text': existing_audit['explanation_text'],
+                'root_cause': existing_audit['root_cause'],
+                'recommendations': json.loads(existing_audit['recommendations_json']),
+                'source': 'Saved LLM Audit'
+            }
+        else:
+            audit = analyze_bias_with_llm(
+                run['model_name'], ds['sensitive_column'], ds['privileged_group'], ds['unprivileged_group'],
+                perf, fairness
+            )
+            save_llm_audit(model_run_id, audit)
+            audit_dict = {
+                'summary_text': audit['summary'],
+                'explanation_text': audit['explanation'],
+                'root_cause': audit['root_cause'],
+                'recommendations': audit['recommendations'],
+                'source': audit['source']
+            }
+            
+        return render_template('llm_audit.html', run=dict(run), dataset=ds, audit=audit_dict, recommendations=audit_dict['recommendations'])
+    except Exception as e:
+        flash(f"Unable to generate LLM audit report: {str(e)}", 'error')
+        return redirect(url_for('dashboard'))
 
 # ----------------------------
 # BIAS MITIGATION
@@ -328,6 +375,10 @@ def mitigation_page(model_run_id):
     run = cursor.fetchone()
     conn.close()
     
+    if not run:
+        flash('Model run not found.', 'error')
+        return redirect(url_for('dashboard'))
+
     ds = get_dataset_by_id(run['dataset_id'])
     return render_template('mitigation.html', run=dict(run), dataset=ds, mitigated_run=None)
 
@@ -342,45 +393,57 @@ def run_mitigation(model_run_id):
     orig_run = cursor.fetchone()
     conn.close()
     
+    if not orig_run:
+        flash('Model run not found.', 'error')
+        return redirect(url_for('dashboard'))
+
     ds = get_dataset_by_id(orig_run['dataset_id'])
-    prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
-    
-    if mitigation_method == 'Reweighing':
-        clf, perf, fairness = apply_reweighing_mitigation(
-            orig_run['model_name'], prep['X_train'], prep['y_train'], prep['A_train'],
-            prep['X_test'], prep['y_test'], prep['A_test']
-        )
-    else:
-        # Threshold Optimization
-        clf = train_classifier(orig_run['model_name'], prep['X_train'], prep['y_train'])
-        _, perf, fairness, _ = apply_threshold_mitigation(clf, prep['X_test'], prep['y_test'], prep['A_test'])
+    if not ds:
+        flash('Dataset record not found.', 'error')
+        return redirect(url_for('dashboard'))
+
+    try:
+        prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
         
-    # Save Mitigated Run to DB
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        """INSERT INTO model_runs 
-           (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score, 
-            disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff, 
-            is_mitigated, mitigation_method, confusion_matrix_json, fairness_status)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)""",
-        (
-            session['user_id'], orig_run['dataset_id'], f"{orig_run['model_name']} (Mitigated)",
-            perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
-            fairness['disparate_impact'], fairness['demographic_parity_diff'],
-            fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
-            mitigation_method, json.dumps(perf['confusion_matrix']), fairness['fairness_status']
+        if mitigation_method == 'Reweighing':
+            clf, perf, fairness = apply_reweighing_mitigation(
+                orig_run['model_name'], prep['X_train'], prep['y_train'], prep['A_train'],
+                prep['X_test'], prep['y_test'], prep['A_test']
+            )
+        else:
+            # Threshold Optimization
+            clf = train_classifier(orig_run['model_name'], prep['X_train'], prep['y_train'])
+            _, perf, fairness, _ = apply_threshold_mitigation(clf, prep['X_test'], prep['y_test'], prep['A_test'])
+            
+        # Save Mitigated Run to DB
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """INSERT INTO model_runs 
+               (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score, 
+                disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff, 
+                is_mitigated, mitigation_method, confusion_matrix_json, fairness_status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)""",
+            (
+                session['user_id'], orig_run['dataset_id'], f"{orig_run['model_name']} (Mitigated)",
+                perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
+                fairness['disparate_impact'], fairness['demographic_parity_diff'],
+                fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
+                mitigation_method, json.dumps(perf['confusion_matrix']), fairness['fairness_status']
+            )
         )
-    )
-    conn.commit()
-    mitigated_run_id = cursor.lastrowid
-    
-    cursor.execute("SELECT * FROM model_runs WHERE id = ?", (mitigated_run_id,))
-    mitigated_run = cursor.fetchone()
-    conn.close()
-    
-    flash(f"Bias mitigation applied using {mitigation_method}! Disparate Impact improved to {fairness['disparate_impact']}", 'success')
-    return render_template('mitigation.html', run=dict(orig_run), dataset=ds, mitigated_run=dict(mitigated_run))
+        conn.commit()
+        mitigated_run_id = cursor.lastrowid
+        
+        cursor.execute("SELECT * FROM model_runs WHERE id = ?", (mitigated_run_id,))
+        mitigated_run = cursor.fetchone()
+        conn.close()
+        
+        flash(f"Bias mitigation applied using {mitigation_method}! Disparate Impact improved to {fairness['disparate_impact']}", 'success')
+        return render_template('mitigation.html', run=dict(orig_run), dataset=ds, mitigated_run=dict(mitigated_run))
+    except Exception as e:
+        flash(f"Error executing bias mitigation: {str(e)}", 'error')
+        return redirect(url_for('mitigation_page', model_run_id=model_run_id))
 
 # ----------------------------
 # EVALUATION & REPORTS

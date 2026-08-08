@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS datasets (
     user_id INTEGER NOT NULL,
     filename VARCHAR(255) NOT NULL,
     filepath VARCHAR(255) NOT NULL,
+    csv_content TEXT,
     row_count INTEGER DEFAULT 0,
     column_count INTEGER DEFAULT 0,
     target_column VARCHAR(100),

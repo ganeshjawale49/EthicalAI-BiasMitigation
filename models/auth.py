@@ -2,6 +2,8 @@
 User Authentication and SQLite Database Connection Module.
 Handles user registration, password hashing with Werkzeug, and user authentication.
 """
+import os
+import shutil
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import Config
@@ -14,11 +16,30 @@ def get_db_connection():
 
 def init_db():
     """Initializes database tables using schema.sql if database does not exist."""
+    base_db = os.path.join(Config.BASE_DIR, 'database.db')
+    if Config.DATABASE_PATH != base_db and not os.path.exists(Config.DATABASE_PATH) and os.path.exists(base_db):
+        try:
+            shutil.copy2(base_db, Config.DATABASE_PATH)
+            return
+        except Exception:
+            pass
+
     conn = get_db_connection()
-    with open('schema.sql', 'r', encoding='utf-8') as f:
-        conn.executescript(f.read())
+    schema_path = os.path.join(Config.BASE_DIR, 'schema.sql')
+    if os.path.exists(schema_path):
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            conn.executescript(f.read())
+            
+    # Auto-migration: ensure csv_content column exists in datasets table
+    try:
+        conn.execute("ALTER TABLE datasets ADD COLUMN csv_content TEXT")
+        conn.commit()
+    except Exception:
+        pass
+
     conn.commit()
     conn.close()
+
 
 def register_user(username, email, password):
     """
