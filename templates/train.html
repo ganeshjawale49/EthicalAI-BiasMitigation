@@ -4,41 +4,304 @@
 {% block content %}
 <div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card card-custom p-4">
-                <h3 class="fw-bold text-center mb-3"><i class="fa-solid fa-robot text-primary me-2"></i> Train Classification Model</h3>
-                <p class="text-muted text-center mb-4">
-                    Train a baseline Scikit-Learn model on <strong>{{ dataset.filename }}</strong>. 
-                    The system will automatically compute classification accuracy, precision, recall, and evaluate fairness metrics.
-                </p>
+        <div class="col-md-9 col-lg-8">
 
-                <form action="{{ url_for('train_model_action', dataset_id=dataset.id) }}" method="POST">
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Select Classifier Algorithm</label>
-                        <select name="model_name" class="form-select form-select-lg" required>
-                            <option value="RandomForest" selected>Random Forest Classifier (Recommended)</option>
-                            <option value="LogisticRegression">Logistic Regression</option>
-                            <option value="DecisionTree">Decision Tree Classifier</option>
-                            <option value="GradientBoosting">Gradient Boosting Classifier</option>
-                        </select>
-                    </div>
-
-                    <div class="p-3 bg-light rounded mb-4">
-                        <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-circle-info text-info me-2"></i> Active Pipeline Settings</h6>
-                        <ul class="mb-0 small text-muted">
-                            <li>Target Variable: <strong class="text-dark">{{ dataset.target_column }}</strong></li>
-                            <li>Sensitive Attribute: <strong class="text-dark">{{ dataset.sensitive_column }}</strong></li>
-                            <li>Privileged Baseline: <strong class="text-dark">{{ dataset.privileged_group }}</strong> (Male / Majority)</li>
-                            <li>Unprivileged Baseline: <strong class="text-dark">{{ dataset.unprivileged_group }}</strong> (Female / Minority)</li>
-                        </ul>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold fs-5">
-                        <i class="fa-solid fa-play me-2"></i> Train & Evaluate Bias Metrics
-                    </button>
-                </form>
+            <!-- Page Header -->
+            <div class="d-flex align-items-center mb-4">
+                <a href="{{ url_for('preprocess_page', dataset_id=dataset.id) }}" class="btn btn-outline-secondary btn-sm me-3">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h3 class="fw-bold mb-0"><i class="fa-solid fa-robot text-primary me-2"></i> Train Classification Model</h3>
+                    <p class="text-muted small mb-0">Dataset: <strong>{{ dataset.filename }}</strong></p>
+                </div>
             </div>
+
+            <!-- Configuration Card -->
+            <div class="card card-custom p-4 mb-4" id="configCard">
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-sliders text-info me-2"></i> Active Pipeline Configuration</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded" style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2)">
+                            <div class="small text-muted mb-1">Target Variable (Label)</div>
+                            <div class="fw-bold text-primary">{{ dataset.target_column or 'Not configured' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded" style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2)">
+                            <div class="small text-muted mb-1">Sensitive Attribute</div>
+                            <div class="fw-bold text-primary">{{ dataset.sensitive_column or 'Not configured' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded" style="background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2)">
+                            <div class="small text-muted mb-1">Privileged Group (Baseline = 1)</div>
+                            <div class="fw-bold text-success">{{ dataset.privileged_group or 'Not configured' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded" style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2)">
+                            <div class="small text-muted mb-1">Unprivileged Group (Monitor)</div>
+                            <div class="fw-bold text-danger">{{ dataset.unprivileged_group or 'Not configured' }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Algorithm Selector -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Select Classifier Algorithm</label>
+                    <select id="model_name" class="form-select form-select-lg">
+                        <option value="RandomForest" selected>🌲 Random Forest Classifier (Recommended)</option>
+                        <option value="LogisticRegression">📊 Logistic Regression</option>
+                        <option value="DecisionTree">🌿 Decision Tree Classifier</option>
+                        <option value="GradientBoosting">🚀 Gradient Boosting Classifier</option>
+                    </select>
+                </div>
+
+                <button id="trainBtn" class="btn btn-primary-custom w-100 py-3 fw-bold fs-5" onclick="startTraining()">
+                    <i class="fa-solid fa-play me-2"></i> Train &amp; Evaluate Bias Metrics
+                </button>
+            </div>
+
+            <!-- Live Training Progress (hidden until training starts) -->
+            <div id="trainingCard" class="card card-custom p-4 mb-4 d-none">
+                <h5 class="fw-bold mb-4"><i class="fa-solid fa-microchip text-primary me-2"></i> Training Pipeline — Live Progress</h5>
+
+                <div class="mb-3" id="step-preprocess">
+                    <div class="d-flex align-items-center gap-3 p-3 rounded step-item" style="background:#f8f9fa">
+                        <div class="step-icon" id="icon-preprocess"><i class="fa-solid fa-circle text-secondary fa-lg"></i></div>
+                        <div>
+                            <div class="fw-bold">Step 1: Data Preprocessing</div>
+                            <div class="small text-muted">Encoding features, imputing missing values, train/test split...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3" id="step-train">
+                    <div class="d-flex align-items-center gap-3 p-3 rounded step-item" style="background:#f8f9fa">
+                        <div class="step-icon" id="icon-train"><i class="fa-solid fa-circle text-secondary fa-lg"></i></div>
+                        <div>
+                            <div class="fw-bold">Step 2: Model Training</div>
+                            <div class="small text-muted" id="step-train-label">Fitting classifier on training data...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3" id="step-evaluate">
+                    <div class="d-flex align-items-center gap-3 p-3 rounded step-item" style="background:#f8f9fa">
+                        <div class="step-icon" id="icon-evaluate"><i class="fa-solid fa-circle text-secondary fa-lg"></i></div>
+                        <div>
+                            <div class="fw-bold">Step 3: Performance &amp; Fairness Evaluation</div>
+                            <div class="small text-muted">Computing accuracy, F1-score, Disparate Impact, Demographic Parity...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4" id="step-save">
+                    <div class="d-flex align-items-center gap-3 p-3 rounded step-item" style="background:#f8f9fa">
+                        <div class="step-icon" id="icon-save"><i class="fa-solid fa-circle text-secondary fa-lg"></i></div>
+                        <div>
+                            <div class="fw-bold">Step 4: Saving Results</div>
+                            <div class="small text-muted">Storing model run and fairness metrics to database...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overall progress bar -->
+                <div class="progress mb-3" style="height:8px">
+                    <div id="mainProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width:0%; transition: width 0.6s ease"></div>
+                </div>
+                <div class="text-center text-muted small" id="progressLabel">Initializing...</div>
+
+                <!-- Error box -->
+                <div id="errorBox" class="alert alert-danger mt-3 d-none">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i>
+                    <strong>Training Error:</strong> <span id="errorMsg"></span>
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-danger" onclick="resetTraining()">
+                            <i class="fa-solid fa-rotate-left me-1"></i> Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Preview (shown after successful training) -->
+            <div id="resultsCard" class="card card-custom p-4 d-none">
+                <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-circle-check me-2"></i> Training Complete!</h5>
+                <div class="row g-3 mb-4" id="metricsRow">
+                    <!-- Filled dynamically -->
+                </div>
+                <a id="viewResultsBtn" href="#" class="btn btn-primary-custom w-100 py-3 fw-bold fs-5">
+                    <i class="fa-solid fa-chart-column me-2"></i> View Bias Detection Results
+                </a>
+            </div>
+
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const DATASET_ID = {{ dataset.id }};
+const steps = ['preprocess', 'train', 'evaluate', 'save'];
+const stepProgress = { preprocess: 25, train: 55, evaluate: 80, save: 100 };
+
+function setStepState(stepName, state) {
+    // state: 'pending' | 'running' | 'done' | 'error'
+    const icon = document.getElementById('icon-' + stepName);
+    const stepDiv = document.getElementById('step-' + stepName).querySelector('.step-item');
+    const icons = {
+        pending: '<i class="fa-solid fa-circle text-secondary fa-lg"></i>',
+        running: '<i class="fa-solid fa-spinner fa-spin text-primary fa-lg"></i>',
+        done:    '<i class="fa-solid fa-circle-check text-success fa-lg"></i>',
+        error:   '<i class="fa-solid fa-circle-xmark text-danger fa-lg"></i>',
+    };
+    const bgs = {
+        pending: '#f8f9fa',
+        running: 'rgba(99,102,241,0.08)',
+        done:    'rgba(34,197,94,0.08)',
+        error:   'rgba(239,68,68,0.08)',
+    };
+    icon.innerHTML = icons[state];
+    stepDiv.style.background = bgs[state];
+}
+
+function setProgress(pct, label) {
+    document.getElementById('mainProgressBar').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = label;
+}
+
+async function startTraining() {
+    const modelName = document.getElementById('model_name').value;
+    const trainBtn  = document.getElementById('trainBtn');
+
+    // Update UI — show training card, hide configure
+    trainBtn.disabled = true;
+    trainBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Training in progress...';
+    document.getElementById('trainingCard').classList.remove('d-none');
+    document.getElementById('errorBox').classList.add('d-none');
+    document.getElementById('resultsCard').classList.add('d-none');
+
+    // Reset all steps to pending
+    steps.forEach(s => setStepState(s, 'pending'));
+    setProgress(5, 'Starting training pipeline...');
+
+    // Animate step labels
+    setStepState('preprocess', 'running');
+    document.getElementById('step-train-label').textContent = `Fitting ${modelName} classifier on training data...`;
+    setProgress(10, 'Preprocessing dataset...');
+
+    // Small delay so user can see the step animation
+    await new Promise(r => setTimeout(r, 400));
+
+    let data;
+    try {
+        const resp = await fetch(`/api/train/${DATASET_ID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model_name: modelName })
+        });
+        data = await resp.json();
+    } catch (err) {
+        showError('network', 'Network error — could not reach the server. Make sure the server is running.');
+        return;
+    }
+
+    if (!data.success) {
+        // Mark which step failed
+        const failStep = data.step || 'preprocess';
+        const stepsBefore = steps.slice(0, steps.indexOf(failStep));
+        stepsBefore.forEach(s => setStepState(s, 'done'));
+        setStepState(failStep, 'error');
+        setProgress(stepProgress[failStep] - 15, 'Training failed.');
+        showError(failStep, data.error || 'Unknown error occurred.');
+        // Re-enable button
+        trainBtn.disabled = false;
+        trainBtn.innerHTML = '<i class="fa-solid fa-play me-2"></i> Train &amp; Evaluate Bias Metrics';
+        return;
+    }
+
+    // Success — animate steps completing in sequence
+    for (let i = 0; i < steps.length; i++) {
+        setStepState(steps[i], 'running');
+        setProgress(stepProgress[steps[i]] - 10, `Running ${steps[i]}...`);
+        await new Promise(r => setTimeout(r, 350));
+        setStepState(steps[i], 'done');
+        setProgress(stepProgress[steps[i]], `${steps[i].charAt(0).toUpperCase() + steps[i].slice(1)} complete.`);
+        await new Promise(r => setTimeout(r, 200));
+    }
+
+    setProgress(100, '✅ All steps completed successfully!');
+
+    // Show metrics preview
+    showResults(data.metrics, data.redirect_url);
+}
+
+function showError(step, msg) {
+    document.getElementById('errorMsg').textContent = msg;
+    document.getElementById('errorBox').classList.remove('d-none');
+    document.getElementById('trainingCard').querySelector('#progressLabel').textContent = 'Training stopped due to error.';
+}
+
+function showResults(metrics, redirectUrl) {
+    const fairnessColor = metrics.disparate_impact >= 0.90 ? 'success'
+                        : metrics.disparate_impact >= 0.80 ? 'warning' : 'danger';
+    const statusColor   = metrics.fairness_status.includes('BIASED') ? 'danger'
+                        : metrics.fairness_status.includes('MODERATE') ? 'warning' : 'success';
+
+    document.getElementById('metricsRow').innerHTML = `
+        <div class="col-6 col-md-3">
+            <div class="text-center p-3 rounded" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2)">
+                <div class="fw-bold fs-4 text-primary">${metrics.accuracy}%</div>
+                <div class="small text-muted">Accuracy</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="text-center p-3 rounded" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2)">
+                <div class="fw-bold fs-4 text-primary">${metrics.f1_score}%</div>
+                <div class="small text-muted">F1 Score</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="text-center p-3 rounded" style="background:rgba(${fairnessColor==='success'?'34,197,94':fairnessColor==='warning'?'234,179,8':'239,68,68'},0.08);border:1px solid rgba(${fairnessColor==='success'?'34,197,94':fairnessColor==='warning'?'234,179,8':'239,68,68'},0.2)">
+                <div class="fw-bold fs-4 text-${fairnessColor}">${metrics.disparate_impact}</div>
+                <div class="small text-muted">Disparate Impact</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="text-center p-3 rounded" style="background:rgba(${statusColor==='success'?'34,197,94':statusColor==='warning'?'234,179,8':'239,68,68'},0.08);border:1px solid rgba(${statusColor==='success'?'34,197,94':statusColor==='warning'?'234,179,8':'239,68,68'},0.2)">
+                <div class="fw-bold small text-${statusColor} mt-1">${metrics.fairness_status}</div>
+                <div class="small text-muted">Fairness Status</div>
+            </div>
+        </div>
+    `;
+    document.getElementById('viewResultsBtn').href = redirectUrl;
+    document.getElementById('resultsCard').classList.remove('d-none');
+
+    // Auto-redirect after 3 seconds
+    let countdown = 3;
+    const btn = document.getElementById('viewResultsBtn');
+    btn.innerHTML = `<i class="fa-solid fa-chart-column me-2"></i> View Bias Detection Results (redirecting in ${countdown}s...)`;
+    const timer = setInterval(() => {
+        countdown--;
+        if (countdown <= 0) {
+            clearInterval(timer);
+            window.location.href = redirectUrl;
+        } else {
+            btn.innerHTML = `<i class="fa-solid fa-chart-column me-2"></i> View Bias Detection Results (redirecting in ${countdown}s...)`;
+        }
+    }, 1000);
+}
+
+function resetTraining() {
+    const trainBtn = document.getElementById('trainBtn');
+    trainBtn.disabled = false;
+    trainBtn.innerHTML = '<i class="fa-solid fa-play me-2"></i> Train &amp; Evaluate Bias Metrics';
+    steps.forEach(s => setStepState(s, 'pending'));
+    document.getElementById('mainProgressBar').style.width = '0%';
+    document.getElementById('progressLabel').textContent = 'Initializing...';
+    document.getElementById('errorBox').classList.add('d-none');
+}
+</script>
 {% endblock %}

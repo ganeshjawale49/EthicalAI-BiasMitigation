@@ -4,6 +4,7 @@ Mitigation of Bias and Improve Fairness in Machine Learning using Large Language
 """
 import os
 import json
+import traceback
 from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file, jsonify
 from config import Config
 from models.auth import init_db, register_user, authenticate_user, get_user_by_id, get_db_connection
@@ -231,15 +232,39 @@ def train_model_action(dataset_id):
         
     model_name = request.form.get('model_name', 'RandomForest')
     
+    # --- Step 1: Preprocess ---
     try:
-        # Preprocess & Train
-        prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
+        prep = preprocess_dataset(
+            ds['filepath'], ds['target_column'],
+            ds['sensitive_column'], ds['privileged_group']
+        )
+    except FileNotFoundError as e:
+        flash(f'Dataset file not found. Please re-upload the CSV. ({str(e)})', 'error')
+        return redirect(url_for('train_page', dataset_id=dataset_id))
+    except Exception as e:
+        traceback.print_exc()
+        flash(f'Preprocessing failed: {str(e)}', 'error')
+        return redirect(url_for('train_page', dataset_id=dataset_id))
+
+    # --- Step 2: Train ---
+    try:
         clf = train_classifier(model_name, prep['X_train'], prep['y_train'])
-        
+    except Exception as e:
+        traceback.print_exc()
+        flash(f'Model training failed for "{model_name}": {str(e)}', 'error')
+        return redirect(url_for('train_page', dataset_id=dataset_id))
+
+    # --- Step 3: Evaluate Performance & Fairness ---
+    try:
         perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
         fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
-        
-        # Save Model Run to DB
+    except Exception as e:
+        traceback.print_exc()
+        flash(f'Evaluation failed: {str(e)}', 'error')
+        return redirect(url_for('train_page', dataset_id=dataset_id))
+
+    # --- Step 4: Save Model Run to DB ---
+    try:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
@@ -259,12 +284,131 @@ def train_model_action(dataset_id):
         conn.commit()
         model_run_id = cursor.lastrowid
         conn.close()
-        
-        flash(f"Model {model_name} trained successfully! Disparate Impact: {fairness['disparate_impact']}", 'success')
-        return redirect(url_for('bias_detection_page', model_run_id=model_run_id))
     except Exception as e:
-        flash(f"Error training model: {str(e)}", 'error')
-        return redirect(url_for('preprocess_page', dataset_id=dataset_id))
+        traceback.print_exc()
+        flash(f'Database error while saving model run: {str(e)}', 'error')
+        return redirect(url_for('train_page', dataset_id=dataset_id))
+        
+    flash(
+        f'✅ {model_name} trained successfully! '
+        f'Accuracy: {perf["accuracy"]*100:.1f}% | '
+        f'Disparate Impact: {fairness["disparate_impact"]} | '
+        f'Status: {fairness["fairness_status"]}',
+        'success'
+    )
+    return redirect(url_for('bias_detection_page', model_run_id=model_run_id))
+
+
+# ----------------------------
+# AJAX TRAIN API  (called by train.html via fetch)
+# ----------------------------
+@app.route('/api/train/<int:dataset_id>', methods=['POST'])
+@login_required
+def api_train(dataset_id):
+    """JSON endpoint used by train page AJAX to run training and return results."""
+    ds = get_dataset_by_id(dataset_id)
+    if not ds:
+        return jsonify({'success': False, 'step': 'load', 'error': 'Dataset record not found in database.'}), 404
+
+    model_name = request.json.get('model_name', 'RandomForest') if request.is_json else request.form.get('model_name', 'RandomForest')
+
+    # Step 1 — Preprocess
+    try:
+        prep = preprocess_dataset(
+            ds['filepath'], ds['target_column'],
+            ds['sensitive_column'], ds['privileged_group']
+        )
+    except FileNotFoundError as e:
+        return jsonify({'success': False, 'step': 'preprocess',
+                        'error': f'Dataset file not found. Please re-upload the CSV file. Detail: {str(e)}'}), 400
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'success': False, 'step': 'preprocess', 'error': f'Preprocessing failed: {str(e)}'}), 400
+
+    # Step 2 — Train
+    try:
+        clf = train_classifier(model_name, prep['X_train'], prep['y_train'])
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'success': False, 'step': 'train', 'error': f'Model training failed for "{model_name}": {str(e)}'}), 400
+
+    # Step 3 — Evaluate
+    try:
+        perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
+        fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'success': False, 'step': 'evaluate', 'error': f'Evaluation failed: {str(e)}'}), 400
+
+    # Step 4 — Save to DB
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """INSERT INTO model_runs
+               (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score,
+                disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff,
+                confusion_matrix_json, fairness_status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                session['user_id'], dataset_id, model_name,
+                perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
+                fairness['disparate_impact'], fairness['demographic_parity_diff'],
+                fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
+                json.dumps(perf['confusion_matrix']), fairness['fairness_status']
+            )
+        )
+        conn.commit()
+        model_run_id = cursor.lastrowid
+        conn.close()
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'success': False, 'step': 'save', 'error': f'Database save failed: {str(e)}'}), 500
+
+    return jsonify({
+        'success': True,
+        'model_run_id': model_run_id,
+        'redirect_url': url_for('bias_detection_page', model_run_id=model_run_id),
+        'metrics': {
+            'accuracy': round(perf['accuracy'] * 100, 1),
+            'precision': round(perf['precision'] * 100, 1),
+            'recall': round(perf['recall'] * 100, 1),
+            'f1_score': round(perf['f1_score'] * 100, 1),
+            'disparate_impact': fairness['disparate_impact'],
+            'demographic_parity_diff': fairness['demographic_parity_diff'],
+            'fairness_status': fairness['fairness_status'],
+        }
+    })
+
+
+# ----------------------------
+# DELETE DATASET
+# ----------------------------
+@app.route('/delete_dataset/<int:dataset_id>', methods=['POST'])
+@login_required
+def delete_dataset(dataset_id):
+    """Deletes a dataset and all its associated model runs from the database."""
+    user_id = session['user_id']
+    ds = get_dataset_by_id(dataset_id)
+    if not ds:
+        flash('Dataset not found.', 'error')
+        return redirect(url_for('dashboard'))
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Delete related model runs first (foreign key cascade workaround for SQLite)
+        cursor.execute("DELETE FROM model_runs WHERE dataset_id = ? AND user_id = ?", (dataset_id, user_id))
+        cursor.execute("DELETE FROM llm_audits WHERE model_run_id NOT IN (SELECT id FROM model_runs)")
+        cursor.execute("DELETE FROM datasets WHERE id = ? AND user_id = ?", (dataset_id, user_id))
+        conn.commit()
+        conn.close()
+        flash(f'Dataset "{ds["filename"]}" and all related model runs deleted successfully.', 'success')
+    except Exception as e:
+        traceback.print_exc()
+        flash(f'Error deleting dataset: {str(e)}', 'error')
+
+    return redirect(url_for('dashboard'))
 
 
 # ----------------------------
