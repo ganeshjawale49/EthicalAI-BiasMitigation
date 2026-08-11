@@ -131,9 +131,13 @@ def upload_file():
         return redirect(url_for('upload_page'))
     
     file_obj = request.files['file']
+    action = request.form.get('action', 'configure')
+
     success, res = save_uploaded_dataset(session['user_id'], file_obj)
     if success:
         flash('Dataset uploaded successfully!', 'success')
+        if action == 'train':
+            return redirect(url_for('train_page', dataset_id=res['id']))
         return redirect(url_for('preprocess_page', dataset_id=res['id']))
     else:
         flash(res, 'error')
@@ -387,28 +391,39 @@ def api_train(dataset_id):
 @app.route('/delete_dataset/<int:dataset_id>', methods=['POST'])
 @login_required
 def delete_dataset(dataset_id):
-    """Deletes a dataset and all its associated model runs from the database."""
+    """Deletes a dataset and all its associated model runs from the database and filesystem."""
     user_id = session['user_id']
     ds = get_dataset_by_id(dataset_id)
     if not ds:
         flash('Dataset not found.', 'error')
-        return redirect(url_for('dashboard'))
+        return redirect(request.referrer or url_for('dashboard'))
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        # Delete related model runs first (foreign key cascade workaround for SQLite)
+        # Delete related LLM audits first to honor foreign key constraints
+        cursor.execute("DELETE FROM llm_audits WHERE model_run_id IN (SELECT id FROM model_runs WHERE dataset_id = ? AND user_id = ?)", (dataset_id, user_id))
+        # Delete related model runs
         cursor.execute("DELETE FROM model_runs WHERE dataset_id = ? AND user_id = ?", (dataset_id, user_id))
-        cursor.execute("DELETE FROM llm_audits WHERE model_run_id NOT IN (SELECT id FROM model_runs)")
+        # Delete dataset record
         cursor.execute("DELETE FROM datasets WHERE id = ? AND user_id = ?", (dataset_id, user_id))
         conn.commit()
         conn.close()
+
+        # Remove physical file from disk if it exists
+        filepath = ds.get('filepath')
+        if filepath and os.path.exists(filepath):
+            try:
+                os.remove(filepath)
+            except Exception:
+                pass
+
         flash(f'Dataset "{ds["filename"]}" and all related model runs deleted successfully.', 'success')
     except Exception as e:
         traceback.print_exc()
         flash(f'Error deleting dataset: {str(e)}', 'error')
 
-    return redirect(url_for('dashboard'))
+    return redirect(request.referrer or url_for('dashboard'))
 
 
 # ----------------------------

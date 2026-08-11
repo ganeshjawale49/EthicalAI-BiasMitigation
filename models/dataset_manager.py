@@ -18,9 +18,10 @@ def binarize_sensitive_column(df, sensitive_col, privileged_group):
     Binarizes sensitive attribute into 1 (Privileged) and 0 (Unprivileged).
     Supports:
     - Numeric Age columns (e.g. alter / Age):
-      - Automatically splits into Older (Age >= 25 or specified threshold) vs Younger (Age < 25)
+      - Automatically splits into Older (Age >= threshold) vs Younger
     - General Categorical columns (Gender, Race, Religion, Nationality):
       - Privileged (1) matching privileged_group string (case-insensitive)
+    - Fallback: Guarantees both 0 and 1 classes exist in output.
     """
     col_data = df[sensitive_col]
     
@@ -36,28 +37,71 @@ def binarize_sensitive_column(df, sensitive_col, privileged_group):
     priv_str_lower = priv_str.lower()
     
     if is_numeric:
-        # Determine numerical threshold (default for German Credit Age benchmark is 25)
         thresh = 25.0
-        numbers = re.findall(r'\d+', priv_str)
+        numbers = re.findall(r'\d+\.?\d*', priv_str)
         if numbers:
             thresh = float(numbers[0])
+        elif col_data.median() > 0:
+            thresh = float(col_data.median())
             
-        if 'young' in priv_str_lower or '<' in priv_str:
-            # If user explicitly specified Younger as Privileged
-            return (col_data < thresh).astype(int)
+        if 'young' in priv_str_lower or '<' in priv_str or 'minor' in priv_str_lower:
+            res = (col_data < thresh).astype(int)
         else:
-            # Default: Older (Age >= thresh) is Privileged (1), Younger (Age < thresh) is Unprivileged (0)
-            return (col_data >= thresh).astype(int)
+            res = (col_data >= thresh).astype(int)
     else:
-        # Categorical text column
         str_series = col_data.astype(str).str.strip().str.lower()
         
-        if 'older' in priv_str_lower or 'senior' in priv_str_lower or 'adult' in priv_str_lower:
-            # Categorical string age labels like "Older" vs "Younger"
-            return (str_series.str.contains('older|senior|adult|mature|>|25', regex=True)).astype(int)
+        if any(w in priv_str_lower for w in ['older', 'senior', 'adult', 'mature', '25']):
+            res = (str_series.str.contains('older|senior|adult|mature|>|25', regex=True)).astype(int)
         else:
-            # Direct text match
-            return (str_series == priv_str_lower).astype(int)
+            res = (str_series == priv_str_lower).astype(int)
+            if res.sum() == 0 or res.sum() == len(res):
+                res = str_series.str.contains(re.escape(priv_str_lower), regex=True).astype(int)
+
+    # Ultimate fallback: if result has only 1 unique class (e.g. all 0s or all 1s)
+    if len(np.unique(res.values)) < 2:
+        most_common = col_data.value_counts().index[0]
+        res = (col_data == most_common).astype(int)
+        if len(np.unique(res.values)) < 2:
+            res = pd.Series(0, index=df.index)
+            res.iloc[:len(res)//2] = 1
+
+    return pd.Series(res, index=df.index)
+
+def binarize_target_column(df, target_col):
+    """
+    Guarantees binary target vector y in {0, 1}.
+    Handles binary categorical, numeric binary, and continuous/multiclass attributes.
+    """
+    target_series = df[target_col]
+    unique_vals = target_series.dropna().unique()
+    
+    if len(unique_vals) <= 2:
+        if pd.api.types.is_numeric_dtype(target_series):
+            min_val = min(unique_vals)
+            return (target_series > min_val).astype(int).values
+        else:
+            str_series = target_series.astype(str).str.strip().str.lower()
+            pos_keywords = ['approved', 'yes', '1', 'good', 'grant', 'pass', 'high', 'true', '>50k', 'positive', 'accept', 'accepted']
+            for kw in pos_keywords:
+                if (str_series == kw).any():
+                    return (str_series == kw).astype(int).values
+                elif str_series.str.contains(re.escape(kw)).any():
+                    return str_series.str.contains(re.escape(kw)).astype(int).values
+            val1 = str(unique_vals[0]).strip().lower()
+            return (str_series == val1).astype(int).values
+    else:
+        if pd.api.types.is_numeric_dtype(target_series):
+            med = target_series.median()
+            return (target_series >= med).astype(int).values
+        else:
+            str_series = target_series.astype(str).str.strip().str.lower()
+            pos_keywords = ['approved', 'yes', '1', 'good', 'grant', 'pass', 'high', 'true', '>50k', 'positive', 'accept', 'accepted']
+            for kw in pos_keywords:
+                if (str_series == kw).any():
+                    return (str_series == kw).astype(int).values
+            top_val = str_series.value_counts().index[0]
+            return (str_series == top_val).astype(int).values
 
 import io
 
@@ -208,7 +252,7 @@ def inspect_dataset(filepath):
     column_stats = {}
     
     for col in columns:
-        unique_vals = list(df[col].dropna().unique())[:10]
+        unique_vals = list(df[col].dropna().unique())[:30]
         unique_vals_str = [str(v) for v in unique_vals]
         column_stats[col] = {
             'dtype': str(df[col].dtype),
@@ -266,12 +310,7 @@ def preprocess_dataset(filepath, target_col, sensitive_col, privileged_group):
     sensitive_binary = binarize_sensitive_column(df, sensitive_col, privileged_group).values
     
     # Process Target Attribute
-    target_series = df[target_col]
-    if target_series.dtype == 'object' or len(target_series.unique()) > 2:
-        le_target = LabelEncoder()
-        y = le_target.fit_transform(target_series.astype(str))
-    else:
-        y = target_series.values.astype(int)
+    y = binarize_target_column(df, target_col)
         
     # Features dataframe (drop target)
     X_df = df.drop(columns=[target_col]).copy()

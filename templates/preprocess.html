@@ -39,13 +39,17 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">3. Privileged Baseline Group (Baseline = 1)</label>
-                        <input type="text" name="privileged_group" id="privileged_group" class="form-control" value="{{ dataset.privileged_group or 'Male' }}" required placeholder="e.g. Male or White">
+                        <select name="privileged_group" id="privileged_group" class="form-select" required>
+                            <option value="{{ dataset.privileged_group or 'Male' }}">{{ dataset.privileged_group or 'Male' }}</option>
+                        </select>
                         <div class="form-text">The historically favored group in training data.</div>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label fw-bold">4. Unprivileged Group (Target = 0)</label>
-                        <input type="text" name="unprivileged_group" id="unprivileged_group" class="form-control" value="{{ dataset.unprivileged_group or 'Female' }}" required placeholder="e.g. Female or Non-White">
+                        <select name="unprivileged_group" id="unprivileged_group" class="form-select" required>
+                            <option value="{{ dataset.unprivileged_group or 'Female' }}">{{ dataset.unprivileged_group or 'Female' }}</option>
+                        </select>
                         <div class="form-text">The group monitored for adverse disparate impact.</div>
                     </div>
 
@@ -109,4 +113,83 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const COLUMN_STATS = {{ info.column_stats | tojson }};
+const SAVED_PRIVILEGED = {{ (dataset.privileged_group or '') | tojson }};
+const SAVED_UNPRIVILEGED = {{ (dataset.unprivileged_group or '') | tojson }};
+
+function updateGroupOptions() {
+    const sensitiveCol = document.getElementById('sensitive_column').value;
+    const privSelect = document.getElementById('privileged_group');
+    const unprivSelect = document.getElementById('unprivileged_group');
+    
+    if (!sensitiveCol || !COLUMN_STATS[sensitiveCol]) return;
+    
+    const stats = COLUMN_STATS[sensitiveCol];
+    const sampleVals = stats.sample_values || [];
+    const isNumeric = stats.dtype.includes('int') || stats.dtype.includes('float');
+    
+    let options = [];
+    if (isNumeric || sensitiveCol.toLowerCase().includes('age') || sensitiveCol.toLowerCase().includes('alter')) {
+        options = [
+            'Older (Age >= 25)',
+            'Younger (Age < 25)',
+            'Older (Age >= 30)',
+            'Younger (Age < 30)',
+            'Group >= median',
+            'Group < median'
+        ];
+        sampleVals.forEach(v => {
+            if (!options.includes(String(v))) options.push(String(v));
+        });
+    } else {
+        options = sampleVals.map(v => String(v));
+        if (sensitiveCol.toLowerCase().includes('gender') || sensitiveCol.toLowerCase().includes('sex')) {
+            if (!options.includes('Male')) options.push('Male');
+            if (!options.includes('Female')) options.push('Female');
+        } else if (sensitiveCol.toLowerCase().includes('race') || sensitiveCol.toLowerCase().includes('ethnicity')) {
+            if (!options.includes('White')) options.push('White');
+            if (!options.includes('Non-White')) options.push('Non-White');
+        }
+    }
+    
+    if (SAVED_PRIVILEGED && !options.includes(SAVED_PRIVILEGED)) options.unshift(SAVED_PRIVILEGED);
+    if (SAVED_UNPRIVILEGED && !options.includes(SAVED_UNPRIVILEGED)) options.push(SAVED_UNPRIVILEGED);
+    
+    // Save current user selection before rebuilding if set
+    const currentPrivVal = privSelect.value || SAVED_PRIVILEGED;
+    const currentUnprivVal = unprivSelect.value || SAVED_UNPRIVILEGED;
+
+    // Populate Privileged Select
+    privSelect.innerHTML = '';
+    options.forEach((val, idx) => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        if (val === currentPrivVal || (idx === 0 && !currentPrivVal)) {
+            opt.selected = true;
+        }
+        privSelect.appendChild(opt);
+    });
+    
+    // Populate Unprivileged Select
+    unprivSelect.innerHTML = '';
+    options.forEach((val, idx) => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        if (val === currentUnprivVal || (idx === 1 && !currentUnprivVal)) {
+            opt.selected = true;
+        }
+        unprivSelect.appendChild(opt);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateGroupOptions();
+});
+</script>
 {% endblock %}
