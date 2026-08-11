@@ -53,7 +53,14 @@
                         <div class="form-text">The group monitored for adverse disparate impact.</div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary-custom w-100 py-2"><i class="fa-solid fa-floppy-disk me-2"></i> Save & Proceed to Model Training</button>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary-custom flex-grow-1 py-2 fw-bold">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Save &amp; Proceed to Training
+                        </button>
+                        <a href="{{ url_for('train_page', dataset_id=dataset.id) }}" class="btn btn-success py-2 fw-bold px-3" title="Skip configuration and train model directly">
+                            <i class="fa-solid fa-play me-1"></i> Train Model Now
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>

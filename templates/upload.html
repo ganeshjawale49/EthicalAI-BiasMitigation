@@ -13,11 +13,18 @@
                 <p class="text-muted small">Upload your binary classification CSV dataset containing demographic/sensitive features (Gender, Race, Age).</p>
                 
                 <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label font-weight-bold">Select CSV File</label>
                         <input type="file" name="file" class="form-control" accept=".csv" required>
                     </div>
-                    <button type="submit" class="btn btn-primary-custom w-100 py-2"><i class="fa-solid fa-cloud-arrow-up me-2"></i> Upload and Analyze Schema</button>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" name="action" value="train" class="btn btn-primary-custom flex-grow-1 py-2 fw-bold">
+                            <i class="fa-solid fa-play me-1"></i> Upload &amp; Train Model Directly
+                        </button>
+                        <button type="submit" name="action" value="configure" class="btn btn-outline-primary py-2 fw-bold">
+                            <i class="fa-solid fa-sliders me-1"></i> Configure Schema First
+                        </button>
+                    </div>
                 </form>
 
                 <hr class="my-4">
@@ -49,8 +56,13 @@
                                         Target: <span class="fw-bold text-dark">{{ ds.target_column or 'Not Set' }}</span>
                                     </div>
                                 </div>
-                                <div class="d-flex gap-2 align-items-center">
-                                    <a href="{{ url_for('preprocess_page', dataset_id=ds.id) }}" class="btn btn-sm btn-primary"><i class="fa-solid fa-sliders me-1"></i> Configure & Train</a>
+                                <div class="d-flex gap-1 align-items-center flex-wrap">
+                                    <a href="{{ url_for('train_page', dataset_id=ds.id) }}" class="btn btn-sm btn-success fw-bold" title="Train model directly">
+                                        <i class="fa-solid fa-play me-1"></i> Train Model
+                                    </a>
+                                    <a href="{{ url_for('preprocess_page', dataset_id=ds.id) }}" class="btn btn-sm btn-outline-secondary" title="Configure columns">
+                                        <i class="fa-solid fa-sliders me-1"></i> Configure
+                                    </a>
                                     <button class="btn btn-sm btn-outline-danger" title="Delete dataset" onclick="confirmDelete({{ ds.id }}, '{{ ds.filename|replace("'", "\\'") }}')">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>

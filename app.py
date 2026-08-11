@@ -208,13 +208,22 @@ def preprocess_page(dataset_id):
 @app.route('/save_preprocess/<int:dataset_id>', methods=['POST'])
 @login_required
 def save_preprocess_config(dataset_id):
+    ds = get_dataset_by_id(dataset_id)
+    if not ds:
+        flash('Dataset record not found.', 'error')
+        return redirect(url_for('upload_page'))
+
     target_col = request.form.get('target_column')
     sensitive_col = request.form.get('sensitive_column')
     priv_group = request.form.get('privileged_group')
     unpriv_group = request.form.get('unprivileged_group')
     
+    if target_col and sensitive_col and str(target_col).strip() == str(sensitive_col).strip():
+        flash('Target Outcome column and Sensitive Attribute column cannot be the same. Please select different columns.', 'error')
+        return redirect(url_for('preprocess_page', dataset_id=dataset_id))
+
     update_dataset_config(dataset_id, target_col, sensitive_col, priv_group, unpriv_group)
-    flash('Dataset configuration saved.', 'success')
+    flash('Dataset configuration saved successfully.', 'success')
     return redirect(url_for('train_page', dataset_id=dataset_id))
 
 @app.route('/train/<int:dataset_id>')

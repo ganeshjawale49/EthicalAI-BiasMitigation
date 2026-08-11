@@ -131,6 +131,13 @@ def save_uploaded_dataset(user_id, file_obj):
     try:
         df = pd.read_csv(io.StringIO(csv_content))
         row_count, col_count = df.shape
+        if row_count < 1 or col_count < 2:
+            if os.path.exists(filepath):
+                try:
+                    os.remove(filepath)
+                except Exception:
+                    pass
+            return False, f"CSV file must contain at least 1 row and 2 columns (found {row_count} rows, {col_count} columns)."
         
         # Auto-detect target and sensitive columns defaults
         columns = list(df.columns)
@@ -296,13 +303,19 @@ def preprocess_dataset(filepath, target_col, sensitive_col, privileged_group):
     df = load_dataset_dataframe(filepath)
     cols = list(df.columns)
     
+    if len(cols) < 2:
+        raise ValueError(f"Dataset must contain at least 2 columns (found {len(cols)}).")
+
+    if target_col and sensitive_col and str(target_col).strip() == str(sensitive_col).strip():
+        raise ValueError(f"Target column and Sensitive Attribute column cannot be the same ('{target_col}'). Please select different columns in Dataset Configuration.")
+
     # Robust fallback for target_col and sensitive_col if None or missing
     if not target_col or target_col not in cols:
         target_col = cols[-1] if cols else ''
     if not sensitive_col or sensitive_col not in cols:
-        sensitive_col = cols[0] if cols else ''
+        sensitive_col = cols[0] if (cols and cols[0] != target_col) else (cols[1] if len(cols) > 1 else cols[0])
     if not privileged_group:
-        privileged_group = 'Male' if 'gender' in sensitive_col.lower() else 'Older'
+        privileged_group = 'Male' if 'gender' in str(sensitive_col).lower() else 'Older'
 
     df = df.dropna(subset=[target_col, sensitive_col]).copy()
     
