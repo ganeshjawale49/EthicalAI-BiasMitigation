@@ -6,22 +6,22 @@ import json
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, HistGradientBoostingClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 def train_classifier(model_name, X_train, y_train, sample_weight=None):
     """
-    Instantiates and fits the requested classification model.
+    Instantiates and fits the requested classification model with ultra-fast hyperparameters.
     Supported model_name: 'LogisticRegression', 'DecisionTree', 'RandomForest', 'GradientBoosting'
     """
     model_map = {
-        'LogisticRegression': LogisticRegression(max_iter=300, n_jobs=-1, random_state=42),
-        'DecisionTree': DecisionTreeClassifier(max_depth=6, random_state=42),
-        'RandomForest': RandomForestClassifier(n_estimators=50, max_depth=8, n_jobs=-1, random_state=42),
-        'GradientBoosting': GradientBoostingClassifier(n_estimators=40, max_depth=4, random_state=42)
+        'LogisticRegression': LogisticRegression(max_iter=100, tol=1e-2, random_state=42),
+        'DecisionTree': DecisionTreeClassifier(max_depth=5, random_state=42),
+        'RandomForest': RandomForestClassifier(n_estimators=20, max_depth=6, n_jobs=-1, random_state=42),
+        'GradientBoosting': HistGradientBoostingClassifier(max_iter=30, max_depth=4, random_state=42) if sample_weight is None else GradientBoostingClassifier(n_estimators=20, max_depth=4, random_state=42)
     }
     
-    clf = model_map.get(model_name, LogisticRegression(max_iter=300, n_jobs=-1, random_state=42))
+    clf = model_map.get(model_name, LogisticRegression(max_iter=100, tol=1e-2, random_state=42))
     
     if sample_weight is not None:
         clf.fit(X_train, y_train, sample_weight=sample_weight)

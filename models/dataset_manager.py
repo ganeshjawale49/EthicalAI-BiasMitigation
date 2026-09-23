@@ -318,6 +318,8 @@ def preprocess_dataset(filepath, target_col, sensitive_col, privileged_group):
         privileged_group = 'Male' if 'gender' in str(sensitive_col).lower() else 'Older'
 
     df = df.dropna(subset=[target_col, sensitive_col]).copy()
+    if len(df) > 5000:
+        df = df.sample(n=5000, random_state=42).reset_index(drop=True)
     
     # Process Sensitive Attribute
     sensitive_binary = binarize_sensitive_column(df, sensitive_col, privileged_group).values
