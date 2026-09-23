@@ -187,13 +187,11 @@ async function startTraining() {
     steps.forEach(s => setStepState(s, 'pending'));
     setProgress(5, 'Starting training pipeline...');
 
-    // Animate step labels
+    // Set running state
     setStepState('preprocess', 'running');
+    setStepState('train', 'running');
     document.getElementById('step-train-label').textContent = `Fitting ${modelName} classifier on training data...`;
-    setProgress(10, 'Preprocessing dataset...');
-
-    // Small delay so user can see the step animation
-    await new Promise(r => setTimeout(r, 400));
+    setProgress(30, 'Training model & evaluating bias metrics...');
 
     let data;
     try {
@@ -222,16 +220,8 @@ async function startTraining() {
         return;
     }
 
-    // Success — animate steps completing in sequence
-    for (let i = 0; i < steps.length; i++) {
-        setStepState(steps[i], 'running');
-        setProgress(stepProgress[steps[i]] - 10, `Running ${steps[i]}...`);
-        await new Promise(r => setTimeout(r, 350));
-        setStepState(steps[i], 'done');
-        setProgress(stepProgress[steps[i]], `${steps[i].charAt(0).toUpperCase() + steps[i].slice(1)} complete.`);
-        await new Promise(r => setTimeout(r, 200));
-    }
-
+    // Success — mark all steps complete instantly
+    steps.forEach(s => setStepState(s, 'done'));
     setProgress(100, '✅ All steps completed successfully!');
 
     // Show metrics preview
@@ -279,19 +269,13 @@ function showResults(metrics, redirectUrl) {
     document.getElementById('viewResultsBtn').href = redirectUrl;
     document.getElementById('resultsCard').classList.remove('d-none');
 
-    // Auto-redirect after 3 seconds
-    let countdown = 3;
+    // Fast redirect
+    let countdown = 1;
     const btn = document.getElementById('viewResultsBtn');
-    btn.innerHTML = `<i class="fa-solid fa-chart-column me-2"></i> View Bias Detection Results (redirecting in ${countdown}s...)`;
-    const timer = setInterval(() => {
-        countdown--;
-        if (countdown <= 0) {
-            clearInterval(timer);
-            window.location.href = redirectUrl;
-        } else {
-            btn.innerHTML = `<i class="fa-solid fa-chart-column me-2"></i> View Bias Detection Results (redirecting in ${countdown}s...)`;
-        }
-    }, 1000);
+    btn.innerHTML = `<i class="fa-solid fa-chart-column me-2"></i> View Bias Detection Results (redirecting...)`;
+    setTimeout(() => {
+        window.location.href = redirectUrl;
+    }, 800);
 }
 
 function resetTraining() {

@@ -15,13 +15,13 @@ def train_classifier(model_name, X_train, y_train, sample_weight=None):
     Supported model_name: 'LogisticRegression', 'DecisionTree', 'RandomForest', 'GradientBoosting'
     """
     model_map = {
-        'LogisticRegression': LogisticRegression(max_iter=1000, random_state=42),
+        'LogisticRegression': LogisticRegression(max_iter=300, n_jobs=-1, random_state=42),
         'DecisionTree': DecisionTreeClassifier(max_depth=6, random_state=42),
-        'RandomForest': RandomForestClassifier(n_estimators=100, max_depth=8, random_state=42),
-        'GradientBoosting': GradientBoostingClassifier(n_estimators=100, random_state=42)
+        'RandomForest': RandomForestClassifier(n_estimators=50, max_depth=8, n_jobs=-1, random_state=42),
+        'GradientBoosting': GradientBoostingClassifier(n_estimators=40, max_depth=4, random_state=42)
     }
     
-    clf = model_map.get(model_name, LogisticRegression(max_iter=1000, random_state=42))
+    clf = model_map.get(model_name, LogisticRegression(max_iter=300, n_jobs=-1, random_state=42))
     
     if sample_weight is not None:
         clf.fit(X_train, y_train, sample_weight=sample_weight)

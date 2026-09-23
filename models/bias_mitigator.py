@@ -74,8 +74,8 @@ def apply_threshold_mitigation(clf, X_test, y_test, A_test, target_di=0.95):
     # Joint 2D grid search over both privileged and unprivileged thresholds
     # Privileged threshold ranges 0.40 - 0.80 (can raise bar for dominant group)
     # Unprivileged threshold ranges 0.01 - 0.55 (lower bar for minority group)
-    for priv_thresh in np.linspace(0.40, 0.80, 17):
-        for unpriv_thresh in np.linspace(0.01, 0.55, 28):
+    for priv_thresh in np.linspace(0.40, 0.80, 9):
+        for unpriv_thresh in np.linspace(0.05, 0.55, 11):
             test_pred = np.zeros_like(y_prob, dtype=int)
             test_pred[priv_mask] = (y_prob[priv_mask] >= priv_thresh).astype(int)
             test_pred[unpriv_mask] = (y_prob[unpriv_mask] >= unpriv_thresh).astype(int)
