@@ -10,7 +10,8 @@ from config import Config
 from models.auth import init_db, register_user, authenticate_user, get_user_by_id, get_db_connection
 from models.dataset_manager import (
     save_uploaded_dataset, get_user_datasets, get_dataset_by_id, 
-    inspect_dataset, update_dataset_config, preprocess_dataset
+    inspect_dataset, update_dataset_config, preprocess_dataset,
+    delete_dataset_permanently
 )
 from models.ml_engine import train_classifier, evaluate_performance
 from models.bias_detector import evaluate_fairness, compute_group_metrics
@@ -401,37 +402,11 @@ def api_train(dataset_id):
 @login_required
 def delete_dataset(dataset_id):
     """Deletes a dataset and all its associated model runs from the database and filesystem."""
-    user_id = session['user_id']
-    ds = get_dataset_by_id(dataset_id)
-    if not ds:
-        flash('Dataset not found.', 'error')
-        return redirect(request.referrer or url_for('dashboard'))
-
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        # Delete related LLM audits first to honor foreign key constraints
-        cursor.execute("DELETE FROM llm_audits WHERE model_run_id IN (SELECT id FROM model_runs WHERE dataset_id = ? AND user_id = ?)", (dataset_id, user_id))
-        # Delete related model runs
-        cursor.execute("DELETE FROM model_runs WHERE dataset_id = ? AND user_id = ?", (dataset_id, user_id))
-        # Delete dataset record
-        cursor.execute("DELETE FROM datasets WHERE id = ? AND user_id = ?", (dataset_id, user_id))
-        conn.commit()
-        conn.close()
-
-        # Remove physical file from disk if it exists
-        filepath = ds.get('filepath')
-        if filepath and os.path.exists(filepath):
-            try:
-                os.remove(filepath)
-            except Exception:
-                pass
-
-        flash(f'Dataset "{ds["filename"]}" and all related model runs deleted successfully.', 'success')
-    except Exception as e:
-        traceback.print_exc()
-        flash(f'Error deleting dataset: {str(e)}', 'error')
-
+    success, message = delete_dataset_permanently(dataset_id, session['user_id'])
+    if success:
+        flash(message, 'success')
+    else:
+        flash(message, 'error')
     return redirect(request.referrer or url_for('dashboard'))
 
 

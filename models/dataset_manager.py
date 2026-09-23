@@ -366,3 +366,62 @@ def preprocess_dataset(filepath, target_col, sensitive_col, privileged_group):
         'X_test_df': X_test
     }
 
+def delete_dataset_permanently(dataset_id, user_id):
+    """
+    Permanently deletes dataset, physical CSV file, associated model runs, and LLM audits.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Fetch dataset details
+    cursor.execute("SELECT * FROM datasets WHERE id = ? AND user_id = ?", (dataset_id, user_id))
+    ds = cursor.fetchone()
+    if not ds:
+        conn.close()
+        return False, "Dataset record not found or permission denied."
+    
+    ds_dict = dict(ds)
+    filepath = ds_dict.get('filepath')
+    filename = ds_dict.get('filename')
+    
+    try:
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        
+        # Get all model run IDs for this dataset
+        cursor.execute("SELECT id FROM model_runs WHERE dataset_id = ?", (dataset_id,))
+        model_run_ids = [row['id'] for row in cursor.fetchall()]
+        
+        # Delete associated LLM audits
+        if model_run_ids:
+            placeholders = ','.join(['?'] * len(model_run_ids))
+            cursor.execute(f"DELETE FROM llm_audits WHERE model_run_id IN ({placeholders})", model_run_ids)
+            
+        # Delete associated model runs
+        cursor.execute("DELETE FROM model_runs WHERE dataset_id = ?", (dataset_id,))
+        
+        # Delete dataset record
+        cursor.execute("DELETE FROM datasets WHERE id = ? AND user_id = ?", (dataset_id, user_id))
+        
+        conn.commit()
+        conn.close()
+        
+        # Delete physical CSV file on disk if it exists
+        if filepath and os.path.exists(filepath):
+            try:
+                os.remove(filepath)
+            except Exception:
+                pass
+                
+        if filename:
+            fallback_path = os.path.join(Config.UPLOAD_FOLDER, filename)
+            if os.path.exists(fallback_path):
+                try:
+                    os.remove(fallback_path)
+                except Exception:
+                    pass
+
+        return True, f'Dataset "{filename}" and all associated audits were permanently deleted.'
+    except Exception as e:
+        conn.close()
+        return False, f"Failed to delete dataset: {str(e)}"
+
