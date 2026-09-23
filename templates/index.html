@@ -5,13 +5,13 @@
 <div class="hero-banner text-center">
     <div class="container">
         <h1 class="hero-title mb-3">Mitigation of Bias & Improving Fairness in Machine Learning using LLMs</h1>
-        <p class="lead text-light mb-4 max-w-2xl mx-auto" style="max-width: 800px;">
+        <p class="lead text-secondary mb-4 max-w-2xl mx-auto" style="max-width: 800px;">
             A complete final-year engineering platform designed to detect algorithmic discrimination against protected attributes 
             (Gender, Race, Age), generate plain-English explanations via LLMs, and restore ethical fairness metrics without degrading model performance.
         </p>
         {% if session.user_id %}
             <a href="{{ url_for('dashboard') }}" class="btn btn-lg btn-primary px-4 me-2"><i class="fa-solid fa-gauge me-2"></i> Go to Dashboard</a>
-            <a href="{{ url_for('upload_page') }}" class="btn btn-lg btn-outline-light px-4"><i class="fa-solid fa-upload me-2"></i> Upload Dataset</a>
+            <a href="{{ url_for('upload_page') }}" class="btn btn-lg btn-outline-primary px-4"><i class="fa-solid fa-upload me-2"></i> Upload Dataset</a>
         {% else %}
             <a href="{{ url_for('login_page') }}" class="btn btn-lg btn-primary px-4 me-2"><i class="fa-solid fa-right-to-bracket me-2"></i> Get Started</a>
         {% endif %}

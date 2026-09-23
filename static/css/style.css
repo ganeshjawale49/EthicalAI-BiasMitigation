@@ -1,21 +1,21 @@
 /* Modern Premium Design System for Ethical AI Bias Mitigation */
 :root {
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
-    --secondary-color: #0f172a;
-    --accent-glow: rgba(59, 130, 246, 0.25);
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --secondary-color: #475569;
+    --accent-glow: rgba(37, 99, 235, 0.12);
     --success-color: #10b981;
     --warning-color: #f59e0b;
     --danger-color: #ef4444;
-    --bg-gradient: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%);
-    --card-bg: rgba(255, 255, 255, 0.96);
-    --card-border: rgba(226, 232, 240, 0.9);
-    --card-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    --bg-gradient: #f8fafc;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
 
 body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    background: #f1f5f9;
+    background: #f8fafc;
     color: #0f172a;
     min-height: 100vh;
     display: flex;
@@ -29,63 +29,55 @@ h1, h2, h3, h4, h5, h6, .hero-title, .navbar-brand {
 
 /* Navbar Custom Styling */
 .navbar-custom {
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .navbar-brand {
     font-weight: 800;
     font-size: 1.35rem;
-    color: #ffffff !important;
+    color: #0f172a !important;
     letter-spacing: -0.02em;
 }
 
 .nav-link {
-    color: #cbd5e1 !important;
+    color: #475569 !important;
     font-weight: 500;
     padding: 0.5rem 1rem !important;
     border-radius: 0.5rem;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s ease;
 }
 
 .nav-link:hover, .nav-link.active {
-    color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.08);
+    color: #2563eb !important;
+    background: #eff6ff;
 }
 
 /* Hero & Header Banners */
 .hero-banner {
-    background: var(--bg-gradient);
-    color: white;
-    padding: 4.5rem 0;
-    border-radius: 0 0 2rem 2rem;
-    margin-bottom: 2.5rem;
-    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.35);
+    background: #ffffff;
+    color: #0f172a;
+    padding: 3.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
     position: relative;
     overflow: hidden;
 }
 
 .hero-banner::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
-    pointer-events: none;
+    display: none;
 }
 
 .hero-title {
-    font-size: 2.75rem;
+    font-size: 2.5rem;
     font-weight: 800;
-    line-height: 1.2;
-    background: linear-gradient(135deg, #ffffff 0%, #60a5fa 50%, #a7f3d0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    line-height: 1.25;
+    color: #0f172a;
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: initial;
 }
 
 /* Glassmorphism Cards */
@@ -227,10 +219,10 @@ h1, h2, h3, h4, h5, h6, .hero-title, .navbar-brand {
 
 footer {
     margin-top: auto;
-    background: #090d16;
-    color: #94a3b8;
-    padding: 2rem 0;
+    background: #ffffff;
+    color: #64748b;
+    padding: 1.75rem 0;
     text-align: center;
     font-size: 0.9rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid #e2e8f0;
 }
