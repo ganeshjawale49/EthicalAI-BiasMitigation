@@ -200,20 +200,20 @@ async function startTraining() {
         setStepState('preprocess', 'done');
         setStepState('train', 'running');
         document.getElementById('step-train-label').textContent = `Fitting ${modelName} classifier on training data...`;
-        setProgress(45, `Step 2/4: Fitting ${modelName} classifier...`);
-    }, 400);
+        setProgress(50, `Step 2/4: Fitting ${modelName} classifier...`);
+    }, 80);
 
     const stepTimer2 = setTimeout(() => {
         setStepState('train', 'done');
         setStepState('evaluate', 'running');
-        setProgress(75, 'Step 3/4: Computing fairness & bias disparity metrics...');
-    }, 900);
+        setProgress(80, 'Step 3/4: Computing fairness & bias disparity metrics...');
+    }, 160);
 
     const stepTimer3 = setTimeout(() => {
         setStepState('evaluate', 'done');
         setStepState('save', 'running');
-        setProgress(90, 'Step 4/4: Committing model run & metrics to database...');
-    }, 1400);
+        setProgress(95, 'Step 4/4: Committing model run & metrics to database...');
+    }, 240);
 
     let data;
     try {

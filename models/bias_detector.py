@@ -7,9 +7,8 @@ import fairlearn.metrics as flm
 
 def compute_group_metrics(y_true, y_pred, A):
     """
-    Computes confusion matrices, positive prediction rates (selection rates), 
-    True Positive Rates (TPR), and False Positive Rates (FPR) for privileged (A=1) 
-    and unprivileged (A=0) groups using Fairlearn metrics.
+    Computes confusion matrices, selection rates, TPR, and FPR for privileged (A=1) 
+    and unprivileged (A=0) groups using fast vectorized NumPy math.
     """
     y_true = np.array(y_true, dtype=int)
     y_pred = np.array(y_pred, dtype=int)
@@ -18,9 +17,9 @@ def compute_group_metrics(y_true, y_pred, A):
     priv_mask = (A == 1)
     unpriv_mask = (A == 0)
     
-    # Fairlearn selection rates
-    priv_sr = float(flm.selection_rate(y_true[priv_mask], y_pred[priv_mask])) if np.sum(priv_mask) > 0 else 0.0
-    unpriv_sr = float(flm.selection_rate(y_true[unpriv_mask], y_pred[unpriv_mask])) if np.sum(unpriv_mask) > 0 else 0.0
+    # Vectorized selection rates
+    priv_sr = float(np.mean(y_pred[priv_mask])) if np.sum(priv_mask) > 0 else 0.0
+    unpriv_sr = float(np.mean(y_pred[unpriv_mask])) if np.sum(unpriv_mask) > 0 else 0.0
     
     # Privileged Group confusion matrix
     priv_tp = int(np.sum((y_true[priv_mask] == 1) & (y_pred[priv_mask] == 1)))
@@ -53,11 +52,11 @@ def compute_group_metrics(y_true, y_pred, A):
 
 def evaluate_fairness(y_true, y_pred, A):
     """
-    Calculates standardized Ethical AI fairness metrics using Fairlearn library:
+    Calculates standardized Ethical AI fairness metrics using fast vectorized operations:
     - Disparate Impact (DI) = Unprivileged SR / Privileged SR
-    - Demographic Parity Difference = fairlearn.metrics.demographic_parity_difference
-    - Equalized Odds Difference = fairlearn.metrics.equalized_odds_difference
-    - Equal Opportunity Difference = fairlearn.metrics.true_positive_rate_difference
+    - Demographic Parity Difference = |Privileged SR - Unprivileged SR|
+    - Equalized Odds Difference = max(|TPR_priv - TPR_unpriv|, |FPR_priv - FPR_unpriv|)
+    - Equal Opportunity Difference = |TPR_priv - TPR_unpriv|
     """
     y_true = np.array(y_true, dtype=int)
     y_pred = np.array(y_pred, dtype=int)
@@ -67,21 +66,9 @@ def evaluate_fairness(y_true, y_pred, A):
     priv_sr = g_metrics['priv_selection_rate']
     unpriv_sr = g_metrics['unpriv_selection_rate']
     
-    # Fairlearn calculations
-    try:
-        dpd = float(flm.demographic_parity_difference(y_true, y_pred, sensitive_features=A))
-    except Exception:
-        dpd = abs(priv_sr - unpriv_sr)
-        
-    try:
-        eod = float(flm.equalized_odds_difference(y_true, y_pred, sensitive_features=A))
-    except Exception:
-        eod = (abs(g_metrics['priv_tpr'] - g_metrics['unpriv_tpr']) + abs(g_metrics['priv_fpr'] - g_metrics['unpriv_fpr'])) / 2.0
-        
-    try:
-        eod_opp = float(flm.true_positive_rate_difference(y_true, y_pred, sensitive_features=A))
-    except Exception:
-        eod_opp = abs(g_metrics['priv_tpr'] - g_metrics['unpriv_tpr'])
+    dpd = abs(priv_sr - unpriv_sr)
+    eod_opp = abs(g_metrics['priv_tpr'] - g_metrics['unpriv_tpr'])
+    eod = max(eod_opp, abs(g_metrics['priv_fpr'] - g_metrics['unpriv_fpr']))
         
     # Disparate Impact (Ratio of unprivileged selection rate to privileged selection rate)
     if priv_sr > 0:
