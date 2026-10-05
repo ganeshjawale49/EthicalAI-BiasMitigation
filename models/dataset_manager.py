@@ -394,9 +394,7 @@ def delete_dataset_permanently(dataset_id, user_id):
         filepath = ds_dict.get('filepath')
         filename = ds_dict.get('filename')
         
-        # 2. Database transaction: delete llm_audits, model_runs, and dataset record
-        conn.execute("BEGIN TRANSACTION;")
-        
+        # 2. Database deletion: delete llm_audits, model_runs, and dataset record
         # Get model run IDs owned by user for this dataset
         cursor.execute("SELECT id FROM model_runs WHERE dataset_id = ? AND user_id = ?", (dataset_id, user_id))
         model_run_ids = [row['id'] for row in cursor.fetchall()]

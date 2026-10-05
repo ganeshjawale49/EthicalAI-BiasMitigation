@@ -9,8 +9,8 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'ethical_ai_bias_mitigation_secret_key_2026')
     BASE_DIR = BASE_DIR
     
-    # In Vercel or read-only environments, use /tmp for SQLite database and uploaded files
-    if IS_VERCEL or not os.access(BASE_DIR, os.W_OK):
+    # In Vercel serverless environments, use /tmp for SQLite database and uploaded files
+    if IS_VERCEL:
         TEMP_DIR = tempfile.gettempdir()
         DATABASE_PATH = os.path.join(TEMP_DIR, 'ethical_ai_database.db')
         UPLOAD_FOLDER = os.path.join(TEMP_DIR, 'ethical_ai_uploads')

@@ -116,7 +116,8 @@
 function confirmDelete(datasetId, filename) {
     document.getElementById('deleteDatasetName').textContent = '"' + filename + '"';
     document.getElementById('deleteForm').action = '/delete_dataset/' + datasetId;
-    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    const modalEl = document.getElementById('deleteModal');
+    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
     modal.show();
 }
 </script>
