@@ -368,60 +368,82 @@ def preprocess_dataset(filepath, target_col, sensitive_col, privileged_group):
 
 def delete_dataset_permanently(dataset_id, user_id):
     """
-    Permanently deletes dataset, physical CSV file, associated model runs, and LLM audits.
+    Permanently deletes dataset record, associated model runs, LLM audits,
+    and physical CSV storage file using persistent dataset_id.
+    Ensures ownership verification, safe reference checks before file deletion,
+    and explicit error reporting without swallowed exceptions.
     """
+    if not dataset_id or not user_id:
+        return False, "Invalid dataset ID or user ID provided."
+
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Fetch dataset details
-    cursor.execute("SELECT * FROM datasets WHERE id = ? AND user_id = ?", (dataset_id, user_id))
-    ds = cursor.fetchone()
-    if not ds:
-        conn.close()
-        return False, "Dataset record not found or permission denied."
-    
-    ds_dict = dict(ds)
-    filepath = ds_dict.get('filepath')
-    filename = ds_dict.get('filename')
-    
     try:
+        # Enable foreign key constraint enforcement on SQLite connection
         cursor.execute("PRAGMA foreign_keys = ON;")
         
-        # Get all model run IDs for this dataset
-        cursor.execute("SELECT id FROM model_runs WHERE dataset_id = ?", (dataset_id,))
+        # 1. Fetch dataset record and verify user ownership
+        cursor.execute("SELECT * FROM datasets WHERE id = ? AND user_id = ?", (dataset_id, user_id))
+        ds = cursor.fetchone()
+        if not ds:
+            conn.close()
+            return False, f"Dataset #{dataset_id} not found or permission denied."
+        
+        ds_dict = dict(ds)
+        filepath = ds_dict.get('filepath')
+        filename = ds_dict.get('filename')
+        
+        # 2. Database transaction: delete llm_audits, model_runs, and dataset record
+        conn.execute("BEGIN TRANSACTION;")
+        
+        # Get model run IDs owned by user for this dataset
+        cursor.execute("SELECT id FROM model_runs WHERE dataset_id = ? AND user_id = ?", (dataset_id, user_id))
         model_run_ids = [row['id'] for row in cursor.fetchall()]
         
-        # Delete associated LLM audits
         if model_run_ids:
             placeholders = ','.join(['?'] * len(model_run_ids))
             cursor.execute(f"DELETE FROM llm_audits WHERE model_run_id IN ({placeholders})", model_run_ids)
+            cursor.execute("DELETE FROM model_runs WHERE dataset_id = ? AND user_id = ?", (dataset_id, user_id))
             
-        # Delete associated model runs
-        cursor.execute("DELETE FROM model_runs WHERE dataset_id = ?", (dataset_id,))
-        
-        # Delete dataset record
         cursor.execute("DELETE FROM datasets WHERE id = ? AND user_id = ?", (dataset_id, user_id))
-        
         conn.commit()
-        conn.close()
         
-        # Delete physical CSV file on disk if it exists
-        if filepath and os.path.exists(filepath):
-            try:
-                os.remove(filepath)
-            except Exception:
-                pass
-                
-        if filename:
-            fallback_path = os.path.join(Config.UPLOAD_FOLDER, filename)
-            if os.path.exists(fallback_path):
-                try:
-                    os.remove(fallback_path)
-                except Exception:
-                    pass
+        # 3. Check if any remaining dataset record in DB references this file/path before physical removal
+        cursor.execute(
+            "SELECT COUNT(*) FROM datasets WHERE filepath = ? OR filename = ?", 
+            (filepath, filename)
+        )
+        remaining_references = cursor.fetchone()[0]
+        conn.close()
 
-        return True, f'Dataset "{filename}" and all associated audits were permanently deleted.'
+        # 4. Storage cleanup if no other dataset record references the file
+        if remaining_references == 0:
+            target_files = set()
+            if filepath:
+                target_files.add(filepath)
+            if filename:
+                target_files.add(os.path.join(Config.UPLOAD_FOLDER, filename))
+                target_files.add(os.path.join(Config.BASE_DIR, 'static', 'uploads', filename))
+
+            file_errors = []
+            for path_to_remove in target_files:
+                if os.path.exists(path_to_remove) and os.path.isfile(path_to_remove):
+                    try:
+                        os.remove(path_to_remove)
+                    except Exception as fe:
+                        file_errors.append(f"Failed to remove '{os.path.basename(path_to_remove)}': {str(fe)}")
+
+            if file_errors:
+                return False, f"Dataset record deleted, but storage cleanup failed: {'; '.join(file_errors)}"
+
+        return True, f'Dataset "{filename}" (ID: {dataset_id}) and all associated audits were permanently deleted.'
+
     except Exception as e:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
         conn.close()
         return False, f"Failed to delete dataset: {str(e)}"
 

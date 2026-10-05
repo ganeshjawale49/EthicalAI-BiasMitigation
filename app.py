@@ -17,7 +17,6 @@ from models.ml_engine import train_classifier, evaluate_performance
 from models.bias_detector import evaluate_fairness, compute_group_metrics
 from models.bias_mitigator import apply_reweighing_mitigation, apply_threshold_mitigation
 from models.llm_explainer import analyze_bias_with_llm, save_llm_audit
-from models.ppt_generator import create_presentation_deck
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -398,11 +397,19 @@ def api_train(dataset_id):
 # ----------------------------
 # DELETE DATASET
 # ----------------------------
-@app.route('/delete_dataset/<int:dataset_id>', methods=['POST'])
+@app.route('/delete_dataset/<int:dataset_id>', methods=['POST', 'DELETE'])
+@app.route('/api/dataset/<int:dataset_id>', methods=['POST', 'DELETE'])
 @login_required
 def delete_dataset(dataset_id):
-    """Deletes a dataset and all its associated model runs from the database and filesystem."""
+    """Deletes a dataset and all its associated model runs from the database and filesystem using dataset_id."""
     success, message = delete_dataset_permanently(dataset_id, session['user_id'])
+    
+    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.method == 'DELETE':
+        if success:
+            return jsonify({'success': True, 'message': message, 'dataset_id': dataset_id}), 200
+        else:
+            return jsonify({'success': False, 'error': message, 'dataset_id': dataset_id}), 400
+
     if success:
         flash(message, 'success')
     else:
@@ -605,88 +612,6 @@ def evaluation_page():
     model_runs = [dict(r) for r in cursor.fetchall()]
     conn.close()
     return render_template('evaluation.html', model_runs=model_runs)
-
-@app.route('/reports')
-@login_required
-def reports_page():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        """SELECT m.*, d.filename FROM model_runs m 
-           JOIN datasets d ON m.dataset_id = d.id 
-           WHERE m.user_id = ? ORDER BY m.created_at DESC""",
-        (session['user_id'],)
-    )
-    model_runs = [dict(r) for r in cursor.fetchall()]
-    conn.close()
-    return render_template('reports.html', model_runs=model_runs)
-
-@app.route('/download_ppt')
-def download_ppt():
-    ppt_path = os.path.join(Config.UPLOAD_FOLDER, 'Ethical_AI_Bias_Mitigation_Presentation.pptx')
-    create_presentation_deck(ppt_path)
-    return send_file(ppt_path, as_attachment=True, download_name='Ethical_AI_Bias_Mitigation_15_Slides.pptx')
-
-@app.route('/generate_printable_report')
-@login_required
-def generate_printable_report():
-    model_run_id = request.args.get('model_run_id', type=int)
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM model_runs WHERE id = ?", (model_run_id,))
-    run = cursor.fetchone()
-    
-    if not run:
-        return "Report not found", 444
-        
-    ds = get_dataset_by_id(run['dataset_id'])
-    cursor.execute("SELECT * FROM llm_audits WHERE model_run_id = ?", (model_run_id,))
-    audit = cursor.fetchone()
-    conn.close()
-    
-    report_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Ethical AI Bias Audit Report</title>
-        <style>
-            body {{ font-family: Arial, sans-serif; margin: 40px; color: #1e293b; }}
-            h1 {{ color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }}
-            .metric-table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
-            .metric-table th, .metric-table td {{ border: 1px solid #cbd5e1; padding: 10px; text-align: left; }}
-            .metric-table th {{ background-color: #0f172a; color: white; }}
-            .badge {{ padding: 5px 10px; border-radius: 4px; color: white; font-weight: bold; }}
-            .badge-danger {{ background-color: #ef4444; }}
-            .badge-success {{ background-color: #10b981; }}
-        </style>
-    </head>
-    <body onload="window.print()">
-        <h1>Ethical AI System: Algorithmic Bias Audit Report</h1>
-        <p><strong>Project Title:</strong> Mitigation of Bias & Improve Fairness in ML using LLMs Towards Ethical AI Systems</p>
-        <hr>
-        <h3>Model Overview</h3>
-        <p><strong>Model Algorithm:</strong> {run['model_name']}</p>
-        <p><strong>Dataset:</strong> {ds['filename']}</p>
-        <p><strong>Sensitive Attribute:</strong> {ds['sensitive_column']} ({ds['privileged_group']} vs {ds['unprivileged_group']})</p>
-        
-        <h3>Performance & Fairness Metrics</h3>
-        <table class="metric-table">
-            <tr><th>Metric</th><th>Score</th><th>Threshold / Target</th></tr>
-            <tr><td>Accuracy</td><td>{run['accuracy'] * 100:.1f}%</td><td>> 80%</td></tr>
-            <tr><td>Disparate Impact Ratio</td><td><strong>{run['disparate_impact']}</strong></td><td>&ge; 0.80 (EEOC 80% Rule)</td></tr>
-            <tr><td>Demographic Parity Difference</td><td>{run['demographic_parity_diff']}</td><td>&le; 0.10</td></tr>
-            <tr><td>Fairness Status</td><td colspan="2">{run['fairness_status']}</td></tr>
-        </table>
-        
-        <h3>LLM Audit Summary</h3>
-        <p>{audit['summary_text'] if audit else 'Baseline mathematical metrics recorded.'}</p>
-        
-        <br><hr>
-        <p style="text-align: center; color: #64748b; font-size: 12px;">Generated by Ethical AI Fairness System • Final Year Project Deliverable</p>
-    </body>
-    </html>
-    """
-    return report_html
 
 if __name__ == '__main__':
     print("Starting Ethical AI Bias Mitigation Web Server...")

@@ -35,7 +35,6 @@
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fa-solid fa-chart-line me-1"></i> Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('upload_page') }}"><i class="fa-solid fa-file-csv me-1"></i> Datasets</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('evaluation_page') }}"><i class="fa-solid fa-list-check me-1"></i> Models & Audits</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('reports_page') }}"><i class="fa-solid fa-file-pdf me-1"></i> Download Reports & PPT</a></li>
                         <li class="nav-item ms-lg-3">
                             <span class="badge bg-light text-dark border me-2"><i class="fa-solid fa-user me-1 text-primary"></i> {{ session.username }}</span>
                             <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
