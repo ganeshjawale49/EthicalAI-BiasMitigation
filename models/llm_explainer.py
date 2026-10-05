@@ -57,6 +57,21 @@ def generate_local_bias_explanation(model_name, sensitive_col, priv_group, unpri
         f"Establish continuous auditing and monitor Disparate Impact across future model deployments."
     ]
     
+    if "(Mitigated)" in model_name:
+        summary = (
+            f"The audit of the {model_name} model shows the results of applied bias mitigation. "
+            f"The new Disparate Impact ratio is {di:.2f}."
+        )
+        explanation += (
+            f"<br>5. **Mitigation Impact**: The applied mitigation strategies have adjusted the model's decision boundaries or training weights to improve fairness metrics, resulting in the current Disparate Impact of {di:.2f}."
+        )
+        root_cause = "Mitigation applied. The model's historical bias has been algorithmically adjusted."
+        recommendations = [
+            "Deploy the mitigated model to production.",
+            "Monitor real-world performance for any data drift.",
+            "Regularly re-evaluate fairness metrics as new data arrives."
+        ]
+    
     return {
         'summary': summary,
         'explanation': explanation,
@@ -72,7 +87,10 @@ def call_gemini_api(api_key, prompt):
     payload = {
         "contents": [{
             "parts": [{"text": prompt}]
-        }]
+        }],
+        "generationConfig": {
+            "responseMimeType": "application/json"
+        }
     }
     
     try:
@@ -93,6 +111,12 @@ def analyze_bias_with_llm(model_name, sensitive_col, priv_group, unpriv_group, p
     api_key = api_key_override or Config.GEMINI_API_KEY or os.environ.get('GEMINI_API_KEY', '')
     
     if api_key:
+        mitigation_context = ""
+        if "(Mitigated)" in model_name:
+            mitigation_context = "Note: This is a mitigated model. Please explain the impact of the mitigation on the fairness and performance."
+        else:
+            mitigation_context = "Note: This is a baseline model. Please recommend potential mitigation strategies."
+            
         prompt = f"""
 You are an expert AI Ethics and Machine Learning Audit System. Analyze the following model fairness evaluation metrics and provide a structured bias explanation report in simple English.
 
@@ -105,12 +129,15 @@ Disparate Impact: {fairness_metrics['disparate_impact']} (80% rule threshold = 0
 Demographic Parity Difference: {fairness_metrics['demographic_parity_diff']}
 Equalized Odds Difference: {fairness_metrics['equalized_odds_diff']}
 Group Selection Rates: Privileged={fairness_metrics['group_metrics']['priv_selection_rate']}, Unprivileged={fairness_metrics['group_metrics']['unpriv_selection_rate']}
+{mitigation_context}
 
-Please return your response as a valid JSON object with the following keys:
-- "summary": A 2-sentence executive summary of the bias findings.
-- "explanation": A 4-bullet point explanation in simple English describing why predictions are biased or fair.
-- "root_cause": An explanation of potential data imbalances or proxy variables causing bias.
-- "recommendations": A list of 4 concrete actionable steps to mitigate this bias.
+Please return your response as a valid JSON object exactly matching this structure:
+{{
+  "summary": "A 2-sentence executive summary of the bias findings, model performance, and fairness metrics.",
+  "explanation": "A 4-bullet point explanation (using HTML <br> or markdown for newlines) in simple English describing the model performance, fairness metrics, detected bias, and mitigation impact (if any).",
+  "root_cause": "An explanation of potential data imbalances, proxy variables, or mitigation effects.",
+  "recommendations": ["Actionable recommendation 1", "Ethical recommendation 2", "Recommendation 3", "Recommendation 4"]
+}}
         """
         raw_response = call_gemini_api(api_key, prompt)
         if raw_response:
