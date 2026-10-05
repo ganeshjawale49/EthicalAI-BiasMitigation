@@ -10,7 +10,7 @@ from config import Config
 
 def get_db_connection():
     """Establishes and returns a connection to the SQLite database with Row factory enabled."""
-    conn = sqlite3.connect(Config.DATABASE_PATH)
+    conn = sqlite3.connect(Config.DATABASE_PATH, timeout=30.0)
     conn.row_factory = sqlite3.Row
     return conn
 

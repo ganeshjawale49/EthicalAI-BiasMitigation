@@ -318,7 +318,10 @@ def train_model_action(dataset_id):
 @app.route('/api/train/<int:dataset_id>', methods=['POST'])
 @login_required
 def api_train(dataset_id):
-    """JSON endpoint used by train page AJAX to run training and return results."""
+    """JSON endpoint used by train page AJAX to run training and return results cleanly."""
+    import time
+    t_start = time.time()
+    
     ds = get_dataset_by_id(dataset_id)
     if not ds:
         return jsonify({'success': False, 'step': 'load', 'error': 'Dataset record not found in database.'}), 404
@@ -326,6 +329,7 @@ def api_train(dataset_id):
     model_name = request.json.get('model_name', 'RandomForest') if request.is_json else request.form.get('model_name', 'RandomForest')
 
     # Step 1 — Preprocess
+    t0 = time.time()
     try:
         prep = preprocess_dataset(
             ds['filepath'], ds['target_column'],
@@ -337,46 +341,89 @@ def api_train(dataset_id):
     except Exception as e:
         traceback.print_exc()
         return jsonify({'success': False, 'step': 'preprocess', 'error': f'Preprocessing failed: {str(e)}'}), 400
+    t_prep = time.time() - t0
+    print(f"[TRAIN] preprocessing: {t_prep:.3f} sec")
 
-    # Step 2 — Train
+    # Step 2 — Train Model
+    t0 = time.time()
     try:
         clf = train_classifier(model_name, prep['X_train'], prep['y_train'])
     except Exception as e:
         traceback.print_exc()
         return jsonify({'success': False, 'step': 'train', 'error': f'Model training failed for "{model_name}": {str(e)}'}), 400
+    t_train = time.time() - t0
+    print(f"[TRAIN] model training: {t_train:.3f} sec")
 
-    # Step 3 — Evaluate
+    # Step 3 — Predictions & Performance
+    t0 = time.time()
     try:
         perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'success': False, 'step': 'evaluate', 'error': f'Performance evaluation failed: {str(e)}'}), 400
+    t_pred = time.time() - t0
+    print(f"[TRAIN] predictions: {t_pred:.3f} sec")
+
+    # Step 3b — Fairness Metrics
+    t0 = time.time()
+    try:
         fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
     except Exception as e:
         traceback.print_exc()
-        return jsonify({'success': False, 'step': 'evaluate', 'error': f'Evaluation failed: {str(e)}'}), 400
+        return jsonify({'success': False, 'step': 'evaluate', 'error': f'Fairness calculation failed: {str(e)}'}), 400
+    t_fair = time.time() - t0
+    print(f"[TRAIN] fairness metrics: {t_fair:.3f} sec")
 
-    # Step 4 — Save to DB
+    # Step 4 — Clean Single DB Transaction (Save Model Run)
+    t0 = time.time()
+    conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        # Guard against accidental double-clicks / duplicate runs within last 3 seconds
         cursor.execute(
-            """INSERT INTO model_runs
-               (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score,
-                disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff,
-                confusion_matrix_json, fairness_status)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (
-                session['user_id'], dataset_id, model_name,
-                perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
-                fairness['disparate_impact'], fairness['demographic_parity_diff'],
-                fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
-                json.dumps(perf['confusion_matrix']), fairness['fairness_status']
-            )
+            """SELECT id FROM model_runs 
+               WHERE user_id = ? AND dataset_id = ? AND model_name = ? AND created_at >= datetime('now', '-3 seconds')
+               ORDER BY id DESC LIMIT 1""",
+            (session['user_id'], dataset_id, model_name)
         )
-        conn.commit()
-        model_run_id = cursor.lastrowid
-        conn.close()
+        existing_run = cursor.fetchone()
+        if existing_run:
+            model_run_id = existing_run['id']
+        else:
+            cursor.execute(
+                """INSERT INTO model_runs
+                   (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score,
+                    disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff,
+                    confusion_matrix_json, fairness_status)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    session['user_id'], dataset_id, model_name,
+                    perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
+                    fairness['disparate_impact'], fairness['demographic_parity_diff'],
+                    fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
+                    json.dumps(perf['confusion_matrix']), fairness['fairness_status']
+                )
+            )
+            conn.commit()
+            model_run_id = cursor.lastrowid
     except Exception as e:
         traceback.print_exc()
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
         return jsonify({'success': False, 'step': 'save', 'error': f'Database save failed: {str(e)}'}), 500
+    finally:
+        if conn:
+            conn.close()
+
+    t_db = time.time() - t0
+    t_total = time.time() - t_start
+    print(f"[TRAIN] database save: {t_db:.3f} sec")
+    print(f"[TRAIN] total: {t_total:.3f} sec")
 
     return jsonify({
         'success': True,

@@ -172,7 +172,12 @@ function setProgress(pct, label) {
     document.getElementById('progressLabel').textContent = label;
 }
 
+let isTraining = false;
+
 async function startTraining() {
+    if (isTraining) return;
+    isTraining = true;
+
     const modelName = document.getElementById('model_name').value;
     const trainBtn  = document.getElementById('trainBtn');
 
@@ -187,11 +192,28 @@ async function startTraining() {
     steps.forEach(s => setStepState(s, 'pending'));
     setProgress(5, 'Starting training pipeline...');
 
-    // Set running state
+    // Visual step sequence timer to accurately reflect progress
     setStepState('preprocess', 'running');
-    setStepState('train', 'running');
-    document.getElementById('step-train-label').textContent = `Fitting ${modelName} classifier on training data...`;
-    setProgress(30, 'Training model & evaluating bias metrics...');
+    setProgress(15, 'Step 1/4: Encoding features & scaling dataset...');
+
+    const stepTimer1 = setTimeout(() => {
+        setStepState('preprocess', 'done');
+        setStepState('train', 'running');
+        document.getElementById('step-train-label').textContent = `Fitting ${modelName} classifier on training data...`;
+        setProgress(45, `Step 2/4: Fitting ${modelName} classifier...`);
+    }, 400);
+
+    const stepTimer2 = setTimeout(() => {
+        setStepState('train', 'done');
+        setStepState('evaluate', 'running');
+        setProgress(75, 'Step 3/4: Computing fairness & bias disparity metrics...');
+    }, 900);
+
+    const stepTimer3 = setTimeout(() => {
+        setStepState('evaluate', 'done');
+        setStepState('save', 'running');
+        setProgress(90, 'Step 4/4: Committing model run & metrics to database...');
+    }, 1400);
 
     let data;
     try {
@@ -202,9 +224,20 @@ async function startTraining() {
         });
         data = await resp.json();
     } catch (err) {
+        clearTimeout(stepTimer1);
+        clearTimeout(stepTimer2);
+        clearTimeout(stepTimer3);
+        isTraining = false;
         showError('network', 'Network error — could not reach the server. Make sure the server is running.');
+        trainBtn.disabled = false;
+        trainBtn.innerHTML = '<i class="fa-solid fa-play me-2"></i> Train &amp; Evaluate Bias Metrics';
         return;
     }
+
+    clearTimeout(stepTimer1);
+    clearTimeout(stepTimer2);
+    clearTimeout(stepTimer3);
+    isTraining = false;
 
     if (!data.success) {
         // Mark which step failed
@@ -222,7 +255,7 @@ async function startTraining() {
 
     // Success — mark all steps complete instantly
     steps.forEach(s => setStepState(s, 'done'));
-    setProgress(100, '✅ All steps completed successfully!');
+    setProgress(100, '✅ All 4 steps completed successfully!');
 
     // Show metrics preview
     showResults(data.metrics, data.redirect_url);

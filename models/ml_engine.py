@@ -11,17 +11,20 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 def train_classifier(model_name, X_train, y_train, sample_weight=None):
     """
-    Instantiates and fits the requested classification model with ultra-fast hyperparameters.
+    Instantiates and fits the requested classification model with fast, optimized hyperparameters.
     Supported model_name: 'LogisticRegression', 'DecisionTree', 'RandomForest', 'GradientBoosting'
     """
-    model_map = {
-        'LogisticRegression': LogisticRegression(max_iter=100, tol=1e-2, random_state=42),
-        'DecisionTree': DecisionTreeClassifier(max_depth=5, random_state=42),
-        'RandomForest': RandomForestClassifier(n_estimators=20, max_depth=6, n_jobs=-1, random_state=42),
-        'GradientBoosting': HistGradientBoostingClassifier(max_iter=30, max_depth=4, random_state=42) if sample_weight is None else GradientBoostingClassifier(n_estimators=20, max_depth=4, random_state=42)
-    }
-    
-    clf = model_map.get(model_name, LogisticRegression(max_iter=100, tol=1e-2, random_state=42))
+    if model_name == 'DecisionTree':
+        clf = DecisionTreeClassifier(max_depth=5, random_state=42)
+    elif model_name == 'RandomForest':
+        clf = RandomForestClassifier(n_estimators=25, max_depth=6, n_jobs=-1, random_state=42)
+    elif model_name == 'GradientBoosting':
+        if sample_weight is None:
+            clf = HistGradientBoostingClassifier(max_iter=30, max_depth=4, random_state=42)
+        else:
+            clf = GradientBoostingClassifier(n_estimators=20, max_depth=4, random_state=42)
+    else:
+        clf = LogisticRegression(max_iter=100, tol=1e-2, random_state=42)
     
     if sample_weight is not None:
         clf.fit(X_train, y_train, sample_weight=sample_weight)
@@ -39,7 +42,11 @@ def evaluate_performance(clf, X_test, y_test, y_pred=None):
     if y_pred is None:
         y_pred = clf.predict(X_test)
         
-    y_prob = clf.predict_proba(X_test)[:, 1] if (clf is not None and hasattr(clf, 'predict_proba')) else y_pred.astype(float)
+    if clf is not None and hasattr(clf, 'predict_proba'):
+        probs = clf.predict_proba(X_test)
+        y_prob = probs[:, 1] if probs.shape[1] > 1 else probs[:, 0]
+    else:
+        y_prob = y_pred.astype(float)
     
     cm = confusion_matrix(y_test, y_pred)
     tn, fp, fn, tp = cm.ravel() if cm.shape == (2, 2) else (0, 0, 0, 0)
