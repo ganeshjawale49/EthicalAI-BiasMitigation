@@ -271,6 +271,7 @@ def train_model_action(dataset_id):
     try:
         perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
         fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
+        g_metrics = fairness.get('group_metrics', {})
     except Exception as e:
         traceback.print_exc()
         flash(f'Evaluation failed: {str(e)}', 'error')
@@ -284,14 +285,15 @@ def train_model_action(dataset_id):
             """INSERT INTO model_runs 
                (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score, 
                 disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff, 
-                confusion_matrix_json, fairness_status)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                confusion_matrix_json, group_metrics_json, fairness_status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 session['user_id'], dataset_id, model_name,
                 perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
                 fairness['disparate_impact'], fairness['demographic_parity_diff'],
                 fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
-                json.dumps(perf['confusion_matrix']), fairness['fairness_status']
+                json.dumps(perf['confusion_matrix']), json.dumps(g_metrics),
+                fairness['fairness_status']
             )
         )
         conn.commit()
@@ -364,10 +366,11 @@ def api_train(dataset_id):
     t_pred = time.time() - t0
     print(f"[TRAIN] predictions: {t_pred:.3f} sec")
 
-    # Step 3b — Fairness Metrics
+    # Step 3b — Fairness Metrics + Group Metrics (cached for later pages)
     t0 = time.time()
     try:
         fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
+        g_metrics = fairness.get('group_metrics', {})
     except Exception as e:
         traceback.print_exc()
         return jsonify({'success': False, 'step': 'evaluate', 'error': f'Fairness calculation failed: {str(e)}'}), 400
@@ -396,14 +399,15 @@ def api_train(dataset_id):
                 """INSERT INTO model_runs
                    (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score,
                     disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff,
-                    confusion_matrix_json, fairness_status)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    confusion_matrix_json, group_metrics_json, fairness_status)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     session['user_id'], dataset_id, model_name,
                     perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
                     fairness['disparate_impact'], fairness['demographic_parity_diff'],
                     fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
-                    json.dumps(perf['confusion_matrix']), fairness['fairness_status']
+                    json.dumps(perf['confusion_matrix']), json.dumps(g_metrics),
+                    fairness['fairness_status']
                 )
             )
             conn.commit()
@@ -486,16 +490,36 @@ def bias_detection_page(model_run_id):
         return redirect(url_for('dashboard'))
 
     try:
-        prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
-        clf = train_classifier(run['model_name'], prep['X_train'], prep['y_train'])
-        perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
-        g_metrics = compute_group_metrics(prep['y_test'], perf['y_pred'], prep['A_test'])
+        # Load cached group metrics from DB if available (avoids expensive re-training)
+        g_metrics = None
+        run_dict = dict(run)
+        if run_dict.get('group_metrics_json'):
+            try:
+                g_metrics = json.loads(run_dict['group_metrics_json'])
+            except (json.JSONDecodeError, TypeError):
+                pass
+        
+        # Fallback: recompute only if not cached
+        if not g_metrics:
+            prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
+            clf = train_classifier(run['model_name'], prep['X_train'], prep['y_train'])
+            perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
+            g_metrics = compute_group_metrics(prep['y_test'], perf['y_pred'], prep['A_test'])
+            # Cache for future page loads
+            try:
+                conn = get_db_connection()
+                conn.execute('UPDATE model_runs SET group_metrics_json = ? WHERE id = ?',
+                             (json.dumps(g_metrics), model_run_id))
+                conn.commit()
+                conn.close()
+            except Exception:
+                pass
         
         return render_template(
             'bias_detection.html', 
-            run=dict(run), 
+            run=run_dict, 
             dataset=ds, 
-            cm=json.loads(run['confusion_matrix_json']),
+            cm=json.loads(run_dict['confusion_matrix_json']),
             g_metrics=g_metrics
         )
     except Exception as e:
@@ -521,10 +545,7 @@ def llm_audit_page(model_run_id):
         return redirect(url_for('dashboard'))
 
     try:
-        prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
-        clf = train_classifier(run['model_name'], prep['X_train'], prep['y_train'])
-        perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
-        fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
+        run_dict = dict(run)
         
         # Check if existing audit saved
         conn = get_db_connection()
@@ -542,8 +563,40 @@ def llm_audit_page(model_run_id):
                 'source': 'Saved LLM Audit'
             }
         else:
+            # Reconstruct fairness/perf from saved DB values (avoids re-training)
+            g_metrics = None
+            if run_dict.get('group_metrics_json'):
+                try:
+                    g_metrics = json.loads(run_dict['group_metrics_json'])
+                except (json.JSONDecodeError, TypeError):
+                    pass
+            
+            if g_metrics:
+                # Build perf and fairness from cached DB values
+                perf = {
+                    'accuracy': run_dict['accuracy'],
+                    'precision': run_dict['precision_score'],
+                    'recall': run_dict['recall_score'],
+                    'f1_score': run_dict['f1_score'],
+                    'confusion_matrix': json.loads(run_dict['confusion_matrix_json']),
+                }
+                fairness = {
+                    'disparate_impact': run_dict['disparate_impact'],
+                    'demographic_parity_diff': run_dict['demographic_parity_diff'],
+                    'equalized_odds_diff': run_dict['equalized_odds_diff'],
+                    'equal_opportunity_diff': run_dict['equal_opportunity_diff'],
+                    'fairness_status': run_dict['fairness_status'],
+                    'group_metrics': g_metrics
+                }
+            else:
+                # Fallback: recompute (only if no cached data)
+                prep = preprocess_dataset(ds['filepath'], ds['target_column'], ds['sensitive_column'], ds['privileged_group'])
+                clf = train_classifier(run_dict['model_name'], prep['X_train'], prep['y_train'])
+                perf = evaluate_performance(clf, prep['X_test'], prep['y_test'])
+                fairness = evaluate_fairness(prep['y_test'], perf['y_pred'], prep['A_test'])
+            
             audit = analyze_bias_with_llm(
-                run['model_name'], ds['sensitive_column'], ds['privileged_group'], ds['unprivileged_group'],
+                run_dict['model_name'], ds['sensitive_column'], ds['privileged_group'], ds['unprivileged_group'],
                 perf, fairness
             )
             save_llm_audit(model_run_id, audit)
@@ -555,7 +608,7 @@ def llm_audit_page(model_run_id):
                 'source': audit['source']
             }
             
-        return render_template('llm_audit.html', run=dict(run), dataset=ds, audit=audit_dict, recommendations=audit_dict['recommendations'])
+        return render_template('llm_audit.html', run=run_dict, dataset=ds, audit=audit_dict, recommendations=audit_dict['recommendations'])
     except Exception as e:
         flash(f"Unable to generate LLM audit report: {str(e)}", 'error')
         return redirect(url_for('dashboard'))
@@ -613,20 +666,22 @@ def run_mitigation(model_run_id):
             _, perf, fairness, _ = apply_threshold_mitigation(clf, prep['X_test'], prep['y_test'], prep['A_test'])
             
         # Save Mitigated Run to DB
+        g_metrics_mit = fairness.get('group_metrics', {})
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
             """INSERT INTO model_runs 
                (user_id, dataset_id, model_name, accuracy, precision_score, recall_score, f1_score, 
                 disparate_impact, demographic_parity_diff, equalized_odds_diff, equal_opportunity_diff, 
-                is_mitigated, mitigation_method, confusion_matrix_json, fairness_status)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)""",
+                is_mitigated, mitigation_method, confusion_matrix_json, group_metrics_json, fairness_status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)""",
             (
                 session['user_id'], orig_run['dataset_id'], f"{orig_run['model_name']} (Mitigated)",
                 perf['accuracy'], perf['precision'], perf['recall'], perf['f1_score'],
                 fairness['disparate_impact'], fairness['demographic_parity_diff'],
                 fairness['equalized_odds_diff'], fairness['equal_opportunity_diff'],
-                mitigation_method, json.dumps(perf['confusion_matrix']), fairness['fairness_status']
+                mitigation_method, json.dumps(perf['confusion_matrix']),
+                json.dumps(g_metrics_mit), fairness['fairness_status']
             )
         )
         conn.commit()

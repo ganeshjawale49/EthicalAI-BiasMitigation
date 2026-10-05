@@ -37,6 +37,13 @@ def init_db():
     except Exception:
         pass
 
+    # Auto-migration: ensure group_metrics_json column exists in model_runs table
+    try:
+        conn.execute("ALTER TABLE model_runs ADD COLUMN group_metrics_json TEXT DEFAULT NULL")
+        conn.commit()
+    except Exception:
+        pass
+
     conn.commit()
     conn.close()
 

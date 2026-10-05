@@ -52,7 +52,6 @@ def apply_threshold_mitigation(clf, X_test, y_test, A_test, target_di=0.95):
     Mitigates bias using Post-processing Joint 2D Threshold Calibration.
     Performs a joint grid search over both privileged and unprivileged probability thresholds
     to find the combination that achieves the closest Disparate Impact to 1.0 (full fairness).
-    This correctly handles heavily imbalanced group datasets (e.g. German Credit Age with 90%/10% split).
     Returns (mitigated_y_pred, perf_metrics, fairness_metrics, optimal_thresholds)
     """
     if not hasattr(clf, 'predict_proba'):
@@ -62,32 +61,41 @@ def apply_threshold_mitigation(clf, X_test, y_test, A_test, target_di=0.95):
         return y_pred, perf, fairness, {'priv_thresh': 0.5, 'unpriv_thresh': 0.5}
         
     y_prob = clf.predict_proba(X_test)[:, 1]
+    y_true_arr = np.array(y_test, dtype=int)
+    A_arr = np.array(A_test, dtype=int)
     
-    priv_mask = (A_test == 1)
-    unpriv_mask = (A_test == 0)
+    priv_mask = (A_arr == 1)
+    unpriv_mask = (A_arr == 0)
     
     best_priv_thresh = 0.5
     best_unpriv_thresh = 0.5
     best_di_diff = 999.0
     best_y_pred = (y_prob >= 0.5).astype(int)
     
-    # Joint 2D grid search over both privileged and unprivileged thresholds
-    # Privileged threshold ranges 0.40 - 0.80 (can raise bar for dominant group)
-    # Unprivileged threshold ranges 0.01 - 0.55 (lower bar for minority group)
-    for priv_thresh in np.linspace(0.40, 0.80, 9):
-        for unpriv_thresh in np.linspace(0.05, 0.55, 11):
-            test_pred = np.zeros_like(y_prob, dtype=int)
-            test_pred[priv_mask] = (y_prob[priv_mask] >= priv_thresh).astype(int)
-            test_pred[unpriv_mask] = (y_prob[unpriv_mask] >= unpriv_thresh).astype(int)
+    # Optimized grid search: coarser grid with inlined DI calculation
+    # Privileged threshold ranges 0.40 - 0.80, Unprivileged threshold ranges 0.05 - 0.55
+    for priv_thresh in np.linspace(0.40, 0.80, 6):
+        priv_preds = (y_prob[priv_mask] >= priv_thresh).astype(int)
+        priv_sr = float(np.mean(priv_preds)) if priv_preds.size > 0 else 0.0
+        
+        if priv_sr == 0:
+            continue
             
-            eval_f = evaluate_fairness(y_test, test_pred, A_test)
-            di = eval_f['disparate_impact']
+        for unpriv_thresh in np.linspace(0.05, 0.55, 7):
+            unpriv_preds = (y_prob[unpriv_mask] >= unpriv_thresh).astype(int)
+            unpriv_sr = float(np.mean(unpriv_preds)) if unpriv_preds.size > 0 else 0.0
+            
+            # Inline DI calculation (much faster than calling evaluate_fairness)
+            di = unpriv_sr / priv_sr if priv_sr > 0 else (1.0 if unpriv_sr == 0 else 0.0)
             
             diff = abs(di - 1.0)
             if diff < best_di_diff:
                 best_di_diff = diff
                 best_priv_thresh = priv_thresh
                 best_unpriv_thresh = unpriv_thresh
+                test_pred = np.zeros_like(y_prob, dtype=int)
+                test_pred[priv_mask] = priv_preds
+                test_pred[unpriv_mask] = unpriv_preds
                 best_y_pred = test_pred
             
     # Compute final metrics with best predictions

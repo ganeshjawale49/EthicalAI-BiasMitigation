@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS model_runs (
     is_mitigated BOOLEAN DEFAULT 0,
     mitigation_method VARCHAR(100) DEFAULT 'None',
     confusion_matrix_json TEXT NOT NULL,
+    group_metrics_json TEXT DEFAULT NULL,
     fairness_status VARCHAR(50) DEFAULT 'Unchecked',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

@@ -6,7 +6,7 @@ import json
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, HistGradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 def train_classifier(model_name, X_train, y_train, sample_weight=None):
@@ -17,14 +17,13 @@ def train_classifier(model_name, X_train, y_train, sample_weight=None):
     if model_name == 'DecisionTree':
         clf = DecisionTreeClassifier(max_depth=5, random_state=42)
     elif model_name == 'RandomForest':
-        clf = RandomForestClassifier(n_estimators=25, max_depth=6, n_jobs=-1, random_state=42)
+        clf = RandomForestClassifier(n_estimators=15, max_depth=5, n_jobs=-1, random_state=42)
     elif model_name == 'GradientBoosting':
-        if sample_weight is None:
-            clf = HistGradientBoostingClassifier(max_iter=30, max_depth=4, random_state=42)
-        else:
-            clf = GradientBoostingClassifier(n_estimators=20, max_depth=4, random_state=42)
+        # HistGradientBoostingClassifier is significantly faster than GradientBoostingClassifier
+        # and supports sample_weight natively in modern scikit-learn (>= 1.3)
+        clf = HistGradientBoostingClassifier(max_iter=10, max_depth=4, random_state=42)
     else:
-        clf = LogisticRegression(max_iter=100, tol=1e-2, random_state=42)
+        clf = LogisticRegression(max_iter=50, tol=5e-2, solver='lbfgs', random_state=42)
     
     if sample_weight is not None:
         clf.fit(X_train, y_train, sample_weight=sample_weight)
