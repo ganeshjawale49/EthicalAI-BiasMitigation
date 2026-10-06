@@ -105,40 +105,67 @@ def binarize_target_column(df, target_col):
 
 import io
 
-def save_uploaded_dataset(user_id, file_obj):
-    """
-    Saves uploaded CSV file, inspects shape, and creates dataset record in SQLite.
-    Returns (success_flag, dataset_dict_or_error_msg)
-    """
-    if not file_obj or file_obj.filename == '':
-        return False, "No file selected."
+def create_empty_dataset(user_id, filename):
+    """Creates an empty dataset record for chunked uploading."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    safe_name = secure_filename(filename) or "uploaded_dataset.csv"
+    filepath = os.path.join(Config.UPLOAD_FOLDER, f"user_{user_id}_{safe_name}")
     
-    if not file_obj.filename.lower().endswith('.csv'):
-        return False, "Only CSV files are allowed."
+    cursor.execute(
+        """INSERT INTO datasets 
+           (user_id, filename, filepath, csv_content, row_count, column_count, target_column, sensitive_column, privileged_group, unprivileged_group)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (user_id, safe_name, filepath, "", 0, 0, "", "", "", "")
+    )
+    conn.commit()
+    dataset_id = cursor.lastrowid
+    conn.close()
+    return dataset_id
+
+def append_dataset_chunk(dataset_id, chunk_text):
+    """Appends a chunk of text to the csv_content of a dataset."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Cross-compatible string concatenation
+    is_pg = os.environ.get('DATABASE_URL') and 'psycopg2' in str(type(conn))
+    if is_pg:
+        # Postgres string concat
+        cursor.execute("UPDATE datasets SET csv_content = csv_content || %s WHERE id = %s", (chunk_text, dataset_id))
+    else:
+        # SQLite string concat
+        cursor.execute("UPDATE datasets SET csv_content = csv_content || ? WHERE id = ?", (chunk_text, dataset_id))
+    conn.commit()
+    conn.close()
+
+def finalize_dataset_upload(dataset_id, user_id):
+    """Parses the assembled csv_content and updates row_count, columns, and infers config."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT csv_content, filepath FROM datasets WHERE id = ? AND user_id = ?", (dataset_id, user_id))
+    row = cursor.fetchone()
     
-    safe_name = secure_filename(file_obj.filename) or "uploaded_dataset.csv"
-    filename = f"user_{user_id}_{safe_name}"
-    filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
+    if not row or not row['csv_content']:
+        conn.close()
+        return False, "Dataset empty or not found."
+        
+    csv_content = row['csv_content']
+    filepath = row['filepath']
     
-    # Read CSV content string to save into database persistently
-    csv_bytes = file_obj.read()
-    csv_content = csv_bytes.decode('utf-8', errors='ignore')
-    
-    # Write to local/temp file
-    with open(filepath, 'wb') as f:
-        f.write(csv_bytes)
-    
+    # Save physical file as backup
+    try:
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(csv_content)
+    except Exception:
+        pass
+        
     try:
         df = pd.read_csv(io.StringIO(csv_content))
         row_count, col_count = df.shape
         if row_count < 1 or col_count < 2:
-            if os.path.exists(filepath):
-                try:
-                    os.remove(filepath)
-                except Exception:
-                    pass
             return False, f"CSV file must contain at least 1 row and 2 columns (found {row_count} rows, {col_count} columns)."
-        
+            
         # Auto-detect target and sensitive columns defaults
         columns = list(df.columns)
         target_col = columns[-1] if columns else ''
@@ -168,27 +195,20 @@ def save_uploaded_dataset(user_id, file_obj):
             if len(unique_vals) >= 2:
                 priv_group = str(unique_vals[0])
                 unpriv_group = str(unique_vals[1])
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
+                
         cursor.execute(
-            """INSERT INTO datasets 
-               (user_id, filename, filepath, csv_content, row_count, column_count, target_column, sensitive_column, privileged_group, unprivileged_group)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            (user_id, filename, filepath, csv_content, row_count, col_count, target_col, sensitive_col, priv_group, unpriv_group)
+            """UPDATE datasets SET 
+               row_count = ?, column_count = ?, target_column = ?, sensitive_column = ?, 
+               privileged_group = ?, unprivileged_group = ? 
+               WHERE id = ?""",
+            (row_count, col_count, target_col, sensitive_col, priv_group, unpriv_group, dataset_id)
         )
         conn.commit()
-        dataset_id = cursor.lastrowid
         conn.close()
-        
         return True, get_dataset_by_id(dataset_id)
     except Exception as e:
-        if os.path.exists(filepath):
-            try:
-                os.remove(filepath)
-            except Exception:
-                pass
-        return False, f"Failed to process CSV: {str(e)}"
+        conn.close()
+        return False, f"Failed to parse CSV content: {str(e)}"
 
 def get_dataset_by_id(dataset_id):
     """Retrieves dataset record from database by ID."""

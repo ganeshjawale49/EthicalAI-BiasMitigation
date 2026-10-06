@@ -9,7 +9,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from config import Config
 from models.auth import init_db, register_user, authenticate_user, get_user_by_id, get_db_connection
 from models.dataset_manager import (
-    save_uploaded_dataset, get_user_datasets, get_dataset_by_id, 
+    create_empty_dataset, append_dataset_chunk, finalize_dataset_upload, get_user_datasets, get_dataset_by_id, 
     inspect_dataset, update_dataset_config, preprocess_dataset,
     delete_dataset_permanently
 )
@@ -123,25 +123,39 @@ def upload_page():
     datasets = get_user_datasets(session['user_id'])
     return render_template('upload.html', datasets=datasets)
 
-@app.route('/upload_file', methods=['POST'])
+@app.route('/api/upload/init', methods=['POST'])
 @login_required
-def upload_file():
-    if 'file' not in request.files:
-        flash('No file part selected.', 'error')
-        return redirect(url_for('upload_page'))
-    
-    file_obj = request.files['file']
-    action = request.form.get('action', 'configure')
+def api_upload_init():
+    filename = request.json.get('filename')
+    if not filename or not filename.lower().endswith('.csv'):
+        return jsonify({'success': False, 'error': 'Invalid or missing CSV filename.'}), 400
+    dataset_id = create_empty_dataset(session['user_id'], filename)
+    return jsonify({'success': True, 'dataset_id': dataset_id})
 
-    success, res = save_uploaded_dataset(session['user_id'], file_obj)
+@app.route('/api/upload/chunk', methods=['POST'])
+@login_required
+def api_upload_chunk():
+    dataset_id = request.json.get('dataset_id')
+    chunk = request.json.get('chunk', '')
+    if not dataset_id:
+        return jsonify({'success': False, 'error': 'Missing dataset_id'}), 400
+    try:
+        append_dataset_chunk(dataset_id, chunk)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/upload/finalize', methods=['POST'])
+@login_required
+def api_upload_finalize():
+    dataset_id = request.json.get('dataset_id')
+    action = request.json.get('action', 'configure')
+    success, res = finalize_dataset_upload(dataset_id, session['user_id'])
     if success:
-        flash('Dataset uploaded successfully!', 'success')
-        if action == 'train':
-            return redirect(url_for('train_page', dataset_id=res['id']))
-        return redirect(url_for('preprocess_page', dataset_id=res['id']))
+        redirect_url = url_for('train_page', dataset_id=dataset_id) if action == 'train' else url_for('preprocess_page', dataset_id=dataset_id)
+        return jsonify({'success': True, 'redirect_url': redirect_url})
     else:
-        flash(res, 'error')
-        return redirect(url_for('upload_page'))
+        return jsonify({'success': False, 'error': str(res)}), 400
 
 @app.route('/load_sample', methods=['GET', 'POST'])
 @login_required
