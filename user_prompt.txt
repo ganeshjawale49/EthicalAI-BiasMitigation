@@ -1,0 +1,116 @@
+<USER_REQUEST>
+IMPORTANT — FIX VERCEL 413 FUNCTION_PAYLOAD_TOO_LARGE ERROR
+
+The deployed website is failing during Model Training with:
+
+413 FUNCTION_PAYLOAD_TOO_LARGE
+"The request is too large for the site's function to process."
+
+This is NOT a CSS or screen-resolution problem.
+
+Fix the actual backend/deployment architecture.
+
+DO NOT ask me what to do. Inspect the entire project, reproduce the error, find the root cause, implement the fix, deploy/test, and verify it yourself.
+
+CHECK FIRST:
+- What data is sent from frontend to the training API?
+- Is the complete CSV/dataset being sent in the request body?
+- Is a large DataFrame/JSON being sent to the serverless function?
+- Is the same dataset being sent multiple times?
+- Is training result/model/prediction data being returned as a huge JSON response?
+- Are large files/results being passed through Vercel Function requests?
+
+REQUIRED FIX:
+
+1. Dataset upload should store the dataset and return a persistent dataset_id/UUID.
+
+2. Training request should send ONLY small metadata such as:
+   dataset_id
+   model/classifier
+   target column
+   protected/sensitive attribute
+   configuration ID
+
+3. DO NOT send the complete CSV/DataFrame through the training request.
+
+4. Backend should load the dataset using dataset_id from persistent storage.
+
+5. Do NOT return the complete dataset, DataFrame, predictions or large model object to the frontend.
+
+6. Return only required training results:
+   - model_run_id
+   - accuracy
+   - precision
+   - recall
+   - F1
+   - fairness metrics
+   - bias status
+   - mitigation status
+   - necessary summary information
+
+7. Check Vercel serverless limitations and make the application compatible with them.
+
+8. If the current local filesystem/SQLite/CSV storage is not persistent on Vercel, identify this architecture problem and implement a reliable persistent-storage approach compatible with the existing project.
+
+IMPORTANT:
+Do NOT simply increase a payload limit or hide the error.
+Reduce the actual request/response size.
+
+Also make sure Gemini LLM Audit is NOT sent the complete dataset.
+Gemini should receive only summarized model/fairness results.
+
+Keep working features unchanged:
+- Login
+- Dataset Upload
+- Dataset Configuration
+- Permanent Dataset Delete
+- Model Training
+- Fairness Metrics
+- Bias Detection
+- Mitigation
+- Gemini LLM Audit
+- Dashboard
+- Model Audits
+
+After fixing:
+
+TEST:
+Dataset Upload
+→ dataset_id created
+→ Configure
+→ Train
+→ no 413 error
+→ training completes
+→ fairness metrics saved
+→ mitigation works
+→ Gemini Audit works
+→ dashboard updates
+
+Also test with the larger Adult dataset.
+
+IMPORTANT:
+Do not just explain the problem.
+Actually modify the code, run/test it, fix any errors, and verify the deployed application.
+
+Finally report:
+1. Exact cause of 413
+2. Files changed
+3. API/request changes
+4. Storage changes
+5. Training payload size before/after
+6. Confirmation that training works on large datasets
+7. Confirmation that Delete, Mitigation and Gemini still work.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-10-06T12:36:16+05:30.
+
+The user's current state is as follows:
+Active Document: c:\project\EthicalAI-BiasMitigation\templates\base.html (LANGUAGE_HTML)
+Cursor is on line: 1
+Other open documents:
+- c:\project\EthicalAI-BiasMitigation\templates\bias_detection.html (LANGUAGE_HTML)
+- c:\project\EthicalAI-BiasMitigation\templates\index.html (LANGUAGE_HTML)
+- c:\project\EthicalAI-BiasMitigation\templates\login.html (LANGUAGE_HTML)
+- c:\project\EthicalAI-BiasMitigation\templates\dashboard.html (LANGUAGE_HTML)
+- c:\project\EthicalAI-BiasMitigation\templates\base.html (LANGUAGE_HTML)
+</ADDITIONAL_METADATA>

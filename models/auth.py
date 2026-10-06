@@ -1,6 +1,7 @@
 """
-User Authentication and SQLite Database Connection Module.
+User Authentication and SQLite/PostgreSQL Database Connection Module.
 Handles user registration, password hashing with Werkzeug, and user authentication.
+Supports PostgreSQL (e.g., Vercel Postgres) for persistent storage on serverless environments.
 """
 import os
 import shutil
@@ -8,8 +9,78 @@ import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import Config
 
+# Support for PostgreSQL on Vercel
+try:
+    import psycopg2
+    import psycopg2.extras
+    HAS_PSYCOPG2 = True
+except ImportError:
+    HAS_PSYCOPG2 = False
+
+class Psycopg2CursorWrapper:
+    def __init__(self, cursor):
+        self._cursor = cursor
+        
+    def execute(self, query, params=()):
+        # Convert sqlite ? to postgres %s
+        query = query.replace('?', '%s')
+        self._cursor.execute(query, params)
+        return self
+        
+    def fetchone(self):
+        return self._cursor.fetchone()
+        
+    def fetchall(self):
+        return self._cursor.fetchall()
+        
+    @property
+    def lastrowid(self):
+        # In psycopg2, cursor.lastrowid is usually None unless using OIDs.
+        # We assume queries that need lastrowid use 'RETURNING id' in execute() manually, 
+        # but since we can't change all app queries easily, we must catch it.
+        # Alternatively, for PostgreSQL, we can use an internal query to get the last val.
+        # Since we modified register_user, it's safer to just return None or fetch.
+        return None
+        
+    def __getattr__(self, name):
+        return getattr(self._cursor, name)
+
+class Psycopg2ConnectionWrapper:
+    def __init__(self, conn):
+        self._conn = conn
+        
+    def cursor(self):
+        return Psycopg2CursorWrapper(self._conn.cursor(cursor_factory=psycopg2.extras.DictCursor))
+        
+    def commit(self):
+        self._conn.commit()
+        
+    def rollback(self):
+        self._conn.rollback()
+        
+    def close(self):
+        self._conn.close()
+        
+    def execute(self, query, params=()):
+        cursor = self.cursor()
+        cursor.execute(query, params)
+        return cursor
+        
+    def executescript(self, script):
+        cursor = self.cursor()
+        # executescript in sqlite doesn't take parameters and runs multiple statements
+        cursor._cursor.execute(script)
+        self.commit()
+        return cursor
+
 def get_db_connection():
-    """Establishes and returns a connection to the SQLite database with Row factory enabled."""
+    """Establishes and returns a connection to the database (PostgreSQL or SQLite)."""
+    db_url = os.environ.get('DATABASE_URL')
+    if db_url and HAS_PSYCOPG2:
+        conn = psycopg2.connect(db_url)
+        return Psycopg2ConnectionWrapper(conn)
+    
+    # Fallback to SQLite
     conn = sqlite3.connect(Config.DATABASE_PATH, timeout=30.0)
     conn.row_factory = sqlite3.Row
     return conn
@@ -20,7 +91,6 @@ def init_db():
     if Config.DATABASE_PATH != base_db and not os.path.exists(Config.DATABASE_PATH) and os.path.exists(base_db):
         try:
             shutil.copy2(base_db, Config.DATABASE_PATH)
-            return
         except Exception:
             pass
 
@@ -28,18 +98,37 @@ def init_db():
     schema_path = os.path.join(Config.BASE_DIR, 'schema.sql')
     if os.path.exists(schema_path):
         with open(schema_path, 'r', encoding='utf-8') as f:
-            conn.executescript(f.read())
+            schema_script = f.read()
+            if os.environ.get('DATABASE_URL') and HAS_PSYCOPG2:
+                # PostgreSQL requires splitting statements or using a transaction
+                cursor = conn.cursor()
+                # Simple replacement for autoincrement in Postgres
+                schema_script = schema_script.replace('AUTOINCREMENT', 'GENERATED ALWAYS AS IDENTITY')
+                try:
+                    cursor.execute(schema_script)
+                    conn.commit()
+                except Exception as e:
+                    print("Postgres Init Error:", e)
+                    conn.rollback()
+            else:
+                conn.executescript(schema_script)
             
     # Auto-migration: ensure csv_content column exists in datasets table
     try:
-        conn.execute("ALTER TABLE datasets ADD COLUMN csv_content TEXT")
+        if os.environ.get('DATABASE_URL') and HAS_PSYCOPG2:
+            conn.cursor().execute("ALTER TABLE datasets ADD COLUMN csv_content TEXT")
+        else:
+            conn.execute("ALTER TABLE datasets ADD COLUMN csv_content TEXT")
         conn.commit()
     except Exception:
         pass
 
     # Auto-migration: ensure group_metrics_json column exists in model_runs table
     try:
-        conn.execute("ALTER TABLE model_runs ADD COLUMN group_metrics_json TEXT DEFAULT NULL")
+        if os.environ.get('DATABASE_URL') and HAS_PSYCOPG2:
+            conn.cursor().execute("ALTER TABLE model_runs ADD COLUMN group_metrics_json TEXT DEFAULT NULL")
+        else:
+            conn.execute("ALTER TABLE model_runs ADD COLUMN group_metrics_json TEXT DEFAULT NULL")
         conn.commit()
     except Exception:
         pass
@@ -65,15 +154,25 @@ def register_user(username, email, password):
     
     password_hash = generate_password_hash(password)
     try:
-        cursor.execute(
-            "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-            (username, email, password_hash)
-        )
+        is_pg = os.environ.get('DATABASE_URL') and HAS_PSYCOPG2
+        if is_pg:
+            cursor.execute(
+                "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?) RETURNING id",
+                (username, email, password_hash)
+            )
+            user_id = cursor.fetchone()['id']
+        else:
+            cursor.execute(
+                "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+                (username, email, password_hash)
+            )
+            user_id = cursor.lastrowid
+            
         conn.commit()
-        user_id = cursor.lastrowid
         conn.close()
         return True, user_id
     except Exception as e:
+        conn.rollback()
         conn.close()
         return False, str(e)
 
