@@ -1,14 +1,14 @@
 # Final Project Report
 
 ## Project Title
-**Mitigation of Bias and Improve Fairness in Machine Learning using Large Language Models Towards Ethical AI Systems**
+**Mitigation of Bias and Improve Fairness in Machine Learning using Large Language Models Towards Bias-Free AI: Building Fair and Ethical ML Modelss**
 
 ---
 
 ## Abstract
 Machine Learning (ML) models are increasingly deployed in high-stakes decision-making environments, including loan credit scoring, employment recruiting, predictive policing, and healthcare allocation. However, empirical studies reveal that standard supervised learning algorithms optimize strictly for predictive accuracy, inadvertently absorbing and exacerbating societal biases present in training data. Consequently, models frequently exhibit severe adverse disparate impact against protected demographic subgroups (e.g., gender, race, age). 
 
-This project presents a comprehensive, production-grade Ethical AI Web Framework that integrates quantitative machine learning fairness auditing with Qualitative Large Language Model (LLM) explainability and automated algorithmic mitigation. The system computes standardized ethical metrics—such as Disparate Impact (DI), Demographic Parity Difference (DPD), and Equalized Odds Difference (EOD)—against baseline classification models (Logistic Regression, Decision Trees, Random Forests). Using Google Gemini LLM API, mathematical metric matrices are translated into plain-English governance summaries, identifying root cause proxy variables. Furthermore, the system implements pre-processing (Reweighing) and post-processing (Subgroup Threshold Optimization) mitigation algorithms. Experimental results on benchmark credit scoring data demonstrate that Subgroup Threshold Calibration successfully elevates Disparate Impact from a biased state (DI = 0.76) to an ethically fair state (DI = 0.91), achieving a 19.7% fairness improvement with minimal (< 1%) impact on predictive accuracy.
+This project presents a comprehensive, production-grade Bias-Free AI Web Framework that integrates quantitative machine learning fairness auditing with Qualitative Large Language Model (LLM) explainability and automated algorithmic mitigation. The system computes standardized ethical metrics—such as Disparate Impact (DI), Demographic Parity Difference (DPD), and Equalized Odds Difference (EOD)—against baseline classification models (Logistic Regression, Decision Trees, Random Forests). Using Google Gemini LLM API, mathematical metric matrices are translated into plain-English governance summaries, identifying root cause proxy variables. Furthermore, the system implements pre-processing (Reweighing) and post-processing (Subgroup Threshold Optimization) mitigation algorithms. Experimental results on benchmark credit scoring data demonstrate that Subgroup Threshold Calibration successfully elevates Disparate Impact from a biased state (DI = 0.76) to an ethically fair state (DI = 0.91), achieving a 19.7% fairness improvement with minimal (< 1%) impact on predictive accuracy.
 
 ---
 

@@ -1,4 +1,4 @@
-# System Configuration Settings for Ethical AI Bias Mitigation Application
+# System Configuration Settings for Bias-Free AI: Building Fair and Ethical ML Models Application
 import os
 import tempfile
 

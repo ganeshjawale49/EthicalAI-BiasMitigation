@@ -1,7 +1,7 @@
 """
 Bias Mitigation Engine Module using Fairlearn and Custom Optimization.
 Provides Pre-processing (Reweighing) and Post-processing (Threshold Optimization) 
-to eliminate algorithmic bias and recalculate Ethical AI metrics.
+to eliminate algorithmic bias and recalculate Bias-Free AI metrics.
 """
 import numpy as np
 from models.ml_engine import train_classifier, evaluate_performance

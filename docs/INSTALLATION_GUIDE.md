@@ -55,7 +55,7 @@ python app.py
 
 Expected Output:
 ```
-Starting Ethical AI Bias Mitigation Web Server...
+Starting Bias-Free AI: Building Fair and Ethical ML Models Web Server...
  * Serving Flask app 'app'
  * Debug mode: on
  * Running on http://127.0.0.1:5000

@@ -1,6 +1,6 @@
 """
 Main Flask Web Application File.
-Mitigation of Bias and Improve Fairness in Machine Learning using Large Language Models Towards Ethical AI Systems.
+Mitigation of Bias and Improve Fairness in Machine Learning using Large Language Models Towards Bias-Free AI: Building Fair and Ethical ML Modelss.
 """
 import os
 import json
@@ -716,5 +716,5 @@ def evaluation_page():
     return render_template('evaluation.html', model_runs=model_runs)
 
 if __name__ == '__main__':
-    print("Starting Ethical AI Bias Mitigation Web Server...")
+    print("Starting Bias-Free AI: Building Fair and Ethical ML Models Web Server...")
     app.run(host='127.0.0.1', port=5000, debug=True)

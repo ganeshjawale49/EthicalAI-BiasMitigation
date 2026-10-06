@@ -3,7 +3,7 @@
 ## Slide-by-Slide Content Outline
 
 - **Slide 1: Title Slide**
-  - **Title**: Mitigation of Bias and Improve Fairness in Machine Learning using LLMs Towards Ethical AI Systems
+  - **Title**: Mitigation of Bias and Improve Fairness in Machine Learning using LLMs Towards Bias-Free AI: Building Fair and Ethical ML Modelss
   - **Subtitle**: Final Year Engineering Project Presentation
   
 - **Slide 2: Introduction & Background**
@@ -35,7 +35,7 @@
   - Multi-model evaluation: Logistic Regression, Decision Tree, Random Forest, Gradient Boosting.
   - Performance metrics: Accuracy, Precision, Recall, F1-Score, Confusion Matrix.
 
-- **Slide 8: Ethical AI Fairness Metrics**
+- **Slide 8: Bias-Free AI Fairness Metrics**
   - Disparate Impact Ratio (EEOC 80% Rule: DI >= 0.80).
   - Demographic Parity Difference (DPD <= 0.10).
   - Equalized Odds & Equal Opportunity Differences.
@@ -68,4 +68,4 @@
   - Deep Learning Transformer embedding bias mitigation.
 
 - **Slide 15: Conclusion**
-  - Successfully built an end-to-end Ethical AI system balancing fairness and accuracy.
+  - Successfully built an end-to-end Bias-Free AI system balancing fairness and accuracy.

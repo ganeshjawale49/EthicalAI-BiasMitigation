@@ -1,4 +1,4 @@
-/* Ethical AI System Main JavaScript Utilities */
+/* Bias-Free AI: Building Fair and Ethical ML Models Main JavaScript Utilities */
 
 document.addEventListener('DOMContentLoaded', function () {
     // Auto-dismiss alerts after 5 seconds

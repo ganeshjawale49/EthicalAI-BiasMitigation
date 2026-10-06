@@ -1,7 +1,7 @@
 # System Software Requirement Specification (SRS) & Architecture Documentation
 
 ## Project Title
-**Mitigation of Bias and Improve Fairness in Machine Learning using Large Language Models Towards Ethical AI Systems**
+**Mitigation of Bias and Improve Fairness in Machine Learning using Large Language Models Towards Bias-Free AI: Building Fair and Ethical ML Modelss**
 
 ---
 

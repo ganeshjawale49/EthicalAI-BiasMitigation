@@ -1,6 +1,6 @@
 """
 Fairness Metrics & Algorithmic Bias Detection Engine Module using Fairlearn.
-Calculates key Ethical AI metrics: Disparate Impact, Demographic Parity, Equalized Odds, Equal Opportunity.
+Calculates key Bias-Free AI metrics: Disparate Impact, Demographic Parity, Equalized Odds, Equal Opportunity.
 """
 import numpy as np
 import fairlearn.metrics as flm
@@ -52,7 +52,7 @@ def compute_group_metrics(y_true, y_pred, A):
 
 def evaluate_fairness(y_true, y_pred, A):
     """
-    Calculates standardized Ethical AI fairness metrics using fast vectorized operations:
+    Calculates standardized Bias-Free AI fairness metrics using fast vectorized operations:
     - Disparate Impact (DI) = Unprivileged SR / Privileged SR
     - Demographic Parity Difference = |Privileged SR - Unprivileged SR|
     - Equalized Odds Difference = max(|TPR_priv - TPR_unpriv|, |FPR_priv - FPR_unpriv|)

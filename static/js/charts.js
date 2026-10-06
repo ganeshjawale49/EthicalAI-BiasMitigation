@@ -1,4 +1,4 @@
-/* Chart.js Visualization Utility Functions for Ethical AI System */
+/* Chart.js Visualization Utility Functions for Bias-Free AI: Building Fair and Ethical ML Models */
 
 function renderSelectionRateChart(canvasId, privLabel, unprivLabel, privRate, unprivRate) {
     const ctx = document.getElementById(canvasId);

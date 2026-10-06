@@ -1,4 +1,4 @@
-# Mitigation of Bias and Improve Fairness in Machine Learning using Large Language Models Towards Ethical AI Systems
+# Mitigation of Bias and Improve Fairness in Machine Learning using Large Language Models Towards Bias-Free AI: Building Fair and Ethical ML Modelss
 
 A complete, production-ready, full-stack web application developed for final-year engineering demonstration. The system enables automated algorithmic bias detection, fairness metric calculation (Disparate Impact, Demographic Parity, Equalized Odds), Gemini LLM plain-English explainability, and Machine Learning bias mitigation (Reweighing & Threshold Calibration).
 
